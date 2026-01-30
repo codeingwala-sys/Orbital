@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gesture Controlled Particle Universe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+
+    body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+    :root {
+  --accent: #9b4dff;
+  --accent-soft: rgba(155, 77, 255, 0.35);
+  --glass-dark: rgba(12, 8, 22, 0.55);
+  --glass-light: rgba(255, 255, 255, 0.12);
+  --text-main: #e6e6e6;
+  --text-muted: #a8a8b3;
+}
+
+    body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, rgba(155,77,255,0.06), transparent 70%);
+}
+
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+      width: 100%;
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    canvas { display: block; }
+    video { display: none; }
+
+    #skeleton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 260px;
+  height: 260px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(155,77,255,0.15), transparent 60%),
+    var(--glass-dark);
+  box-shadow:
+    0 0 40px rgba(155,77,255,0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+  z-index: 8;
+}
+
+
+    #intro {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #2e2e2e 0%, #000 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .intro-box {
+  text-align: center;
+  padding: 46px 64px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05)),
+    var(--glass-dark);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.15);
+  backdrop-filter: blur(14px);
+  animation: float 4s ease-in-out infinite;
+}
+
+
+    .intro-box h1 {
+  font-size: 2.6rem;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  color: var(--text-main);
+  text-shadow: 0 0 22px var(--accent-soft);
+}
+
+
+    .intro-btn {
+  padding: 14px 44px;
+  font-size: 0.95rem;
+  letter-spacing: 1.5px;
+  color: #fff;
+  background:
+    linear-gradient(135deg, #b98cff, #6a0dad);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow:
+    0 0 24px var(--accent-soft),
+    inset 0 0 0 1px rgba(255,255,255,0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.intro-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 34px rgba(155,77,255,0.65);
+}
+
+.intro-box {
+  position: relative;
+}
+
+.intro-box::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(155,77,255,0.35),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+
+
+    #handStatus {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 26px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05)),
+    var(--glass-dark);
+  color: var(--text-muted);
+  box-shadow:
+    0 0 26px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  z-index: 9;
+  transition: all 0.3s ease;
+}
+
+#handStatus::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.12),
+    rgba(255,255,255,0)
+  );
+  pointer-events: none;
+}
+
+
+    #handStatus.tracking {
+  color: #caffb3;
+  box-shadow:
+    0 0 26px rgba(120,255,160,0.55),
+    inset 0 0 0 1px rgba(120,255,160,0.35);
+}
+
+#handStatus.lost {
+  color: #ffb3b3;
+  box-shadow:
+    0 0 26px rgba(255,100,100,0.55),
+    inset 0 0 0 1px rgba(255,100,100,0.35);
+}
+
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+  canvas {
+  position: relative;
+  z-index: 0;
+  filter: contrast(1.05) saturate(1.05);
+}
+
+#handStatus.twohand {
+  color: #f3d7a6; /* softer gold */
+  box-shadow:
+    0 0 14px rgba(255, 200, 120, 0.35),
+    inset 0 0 0 1px rgba(255, 200, 120, 0.35);
+}
+
+#skeleton.twohand {
+  box-shadow:
+    0 0 26px rgba(255, 200, 120, 0.35),
+    inset 0 0 0 1px rgba(255, 200, 120, 0.35);
+}
+
+#skeleton.twohand {
+  animation: pulseSoft 2.4s ease-in-out infinite;
+}
+
+@keyframes pulseSoft {
+  0%, 100% { box-shadow: 0 0 22px rgba(255,200,120,0.28); }
+  50%      { box-shadow: 0 0 28px rgba(255,200,120,0.38); }
+}
+
+
+    /* ---------- GLOBAL ATMOSPHERE ---------- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, rgba(155,77,255,0.08), transparent 70%);
+  z-index: 1;
+}
+
+  </style>
+</head>
+<body>
+
+<div id="intro">
+  <div class="intro-box">
+    <h1>ARE YOU READY?</h1>
+    <button class="intro-btn" id="startExperience">YES, BEGIN</button>
+  </div>
+</div>
+
+<div id="handStatus" class="lost">Hand not detected</div>
+<canvas id="skeleton" width="300" height="300"></canvas>
+<video id="video" autoplay playsinline muted></video>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+<script>
+// ==================== THREE SETUP ====================
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x000000, 80, 220);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 130;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0x552266, 0.4));
+const dirLight = new THREE.DirectionalLight(0xbb88ff, 1.1);
+dirLight.position.set(1, 1, 1);
+scene.add(dirLight);
+
+let lastRotX = 0;
+let lastRotY = 0;
+let lastRotZ = 0;
+
+const SHAPES = ['sphere', 'infinity', 'heart', 'saturn'];
+
+//================== Global Variables ================
+let currentShapeIndex = 0;
+let lastTwoHandDistance = null;
+let twoHandCooldown = false;
+let isMorphing = false;
+let normalsDirty = false;
+const MORPH_EPSILON = 0.002;
+let twoHandArmed = false;
+let twoHandStartTime = 0;
+let rawDepth = 0;
+let baseHandSize = null;
+let handSize = 0;
+let saturnRingStart = 0;
+let saturnRingCount = 0;
+let ringAngle = 0;
+const GAP_FADE_START = 42;
+const GAP_FADE_END   = 48;
+let saturnRingBase = null;
+const shadowColor = new THREE.Color('#1a0f2e');   // deep violet shadow
+const midColor    = new THREE.Color('#6a3cff');   // main body
+const highlightColor = new THREE.Color('#c9b6ff'); // light hit
+let handDepth = 0;
+let gestureAccum = 0;
+const GESTURE_THRESHOLD = 0.14;
+
+const TWO_HAND_ARM_DELAY = 250; // ms
+let shapeTextureBias = {
+  size: 1.35,
+  alpha: 0.25
+};
+let colorUpdateCooldown = 0;
+const MIN_GESTURE_SPEED = 0.008;
+let smoothedLandmarks = null;
+const LANDMARK_SMOOTH = 0.65; // higher = smoother, lower = snappier
+let isLocked = false;
+let lockProgress = 0;          // 0 → 1
+let lastLockSeenTime = 0;
+
+const LOCK_PROGRESS_SPEED = 0.0042;   // faster lock/unlock
+const LOCK_DECAY_SPEED = 0.0012;      // slower decay (stability)
+const LOCK_GRACE_TIME = 320;          // ms of flicker allowed
+let frozenRotX = 0;
+let frozenRotY = 0;
+let frozenRotZ = 0;
+let frozenScale = 1;
+let frozenDepth = 0;
+const PALM_FACING_THRESHOLD = -0.15;
+let depthFactor = 0;
+let stableDistanceTime = 0;
+let lockIntent = null; // 'lock' | 'unlock' | null
+let interactionFade = 1; // 1 = active, 0 = paused
+let lockRing = null;
+let lockRingMaterial = null;
+
+
+// ==================== PARTICLES ====================
+const MAX_PARTICLES = 40000;
+const geometry = new THREE.BufferGeometry();
+const positions = new Float32Array(MAX_PARTICLES * 3);
+const colors = new Float32Array(MAX_PARTICLES * 3);
+const targetPositions = new Float32Array(MAX_PARTICLES * 3);
+
+const normals = new Float32Array(MAX_PARTICLES * 3);
+geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+
+const baseColor = new THREE.Color('#6a0dad');
+const lightDir = new THREE.Vector3(1, 0.6, 0.8).normalize();
+
+function createSphere(radius = 45) {
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    const u = Math.random();
+    const v = Math.random();
+    const theta = 2 * Math.PI * u;
+    const phi = Math.acos(2 * v - 1);
+
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const z = radius * Math.cos(phi);
+
+    positions[i * 3]     = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
+
+    const nx = x / radius;
+    const ny = y / radius;
+    const nz = z / radius;
+
+    const lightStrength = Math.max(nx * lightDir.x + ny * lightDir.y + nz * lightDir.z, 0);
+    const depth = THREE.MathUtils.mapLinear(z, -radius, radius, 0.35, 1.0);
+    const intensity = THREE.MathUtils.clamp(0.35 + lightStrength * 0.9, 0, 1) * depth;
+
+    const c = baseColor.clone().multiplyScalar(intensity);
+    colors[i * 3]     = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
+  }
+}
+
+function generateInfinity() {
+  const a = 30;
+
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    const t = Math.random() * Math.PI * 2;
+
+    // center curve
+    const cx = a * Math.sin(t);
+    const cz = a * Math.sin(t) * Math.cos(t);
+
+    // circular tube cross-section
+    const tubeR = 4 * Math.sqrt(Math.random());
+    const tubeAngle = Math.random() * Math.PI * 2;
+
+    const x = cx + Math.cos(tubeAngle) * tubeR;
+    const y = Math.sin(t * 2) * 6 + Math.sin(tubeAngle) * tubeR;
+    const z = cz + Math.cos(tubeAngle) * tubeR;
+
+    const scale = 1.6;
+
+    targetPositions[i * 3]     = x * scale;
+    targetPositions[i * 3 + 1] = y * scale;
+    targetPositions[i * 3 + 2] = z * scale;
+  }
+}
+
+function generateHeart() {
+  const scale = 2.3;
+
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    const t = Math.random() * Math.PI * 2;
+
+    // Balanced bias: outline + volume
+    const bias = Math.pow(Math.random(), 0.5);
+
+    // Classic heart curve
+    const hx =
+      16 * Math.pow(Math.sin(t), 3);
+
+    const hy =
+      13 * Math.cos(t)
+      - 5 * Math.cos(2 * t)
+      - 2 * Math.cos(3 * t)
+      - Math.cos(4 * t);
+
+    // Partial hollow (NOT empty)
+    const fill = THREE.MathUtils.lerp(0.6, 1.0, bias);
+
+    const x = hx * fill * scale;
+    const y = hy * fill * scale;
+
+    // 👉 THIS is the thickness fix
+    const z =
+      (Math.random() - 0.5) *
+      THREE.MathUtils.lerp(6.0, 12.0, bias);
+
+    targetPositions[i * 3]     = x;
+    targetPositions[i * 3 + 1] = y;
+    targetPositions[i * 3 + 2] = z;
+  }
+}
+
+
+
+function generateSaturn() {
+  const coreCount = Math.floor(MAX_PARTICLES * 0.55);
+  saturnRingStart = coreCount;
+  saturnRingCount = MAX_PARTICLES - coreCount;
+
+  // ---------- HALF-SPHERE CORE ----------
+  for (let i = 0; i < coreCount; i++) {
+    const u = Math.random();
+    const v = Math.random();
+
+    const theta = 2 * Math.PI * u;
+    const phi = Math.acos(2 * v - 1);
+
+    const radius = 28 + (Math.random() - 0.5) * 1.0;
+
+    let x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.cos(phi);
+    const z = radius * Math.sin(phi) * Math.sin(theta);
+
+    if (x < 0) x *= -1; // clean hemisphere cut
+
+    targetPositions[i * 3]     = x;
+    targetPositions[i * 3 + 1] = y;
+    targetPositions[i * 3 + 2] = z;
+  }
+
+  // ---------- RINGS ----------
+  for (let i = 0; i < saturnRingCount; i++) {
+    const idx = coreCount + i;
+    const angle = Math.random() * Math.PI * 2;
+
+    const inner = 42;
+    const outer = 64;
+
+    const radius =
+      inner + Math.pow(Math.random(), 1.6) * (outer - inner);
+
+    const band = Math.sin(radius * 0.45) * 1.2;
+    const finalRadius = radius + band;
+
+    const thickness = (Math.random() - 0.5) * 0.8;
+
+    targetPositions[idx * 3]     = finalRadius * Math.cos(angle);
+    targetPositions[idx * 3 + 1] = thickness;
+    targetPositions[idx * 3 + 2] = finalRadius * Math.sin(angle);
+  }
+
+  // ---------- STORE BASE RING POSITIONS ----------
+  saturnRingBase = new Float32Array(saturnRingCount * 2);
+
+  for (let i = 0; i < saturnRingCount; i++) {
+    const idx = saturnRingStart + i;
+    saturnRingBase[i * 2]     = targetPositions[idx * 3];
+    saturnRingBase[i * 2 + 1] = targetPositions[idx * 3 + 2];
+  }
+}
+
+
+function generateSphere() {
+  const radius = 45;
+
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    // uniform surface distribution
+    const u = Math.random();
+    const v = Math.random();
+
+    const theta = 2 * Math.PI * u;
+    const phi   = Math.acos(1 - 2 * v);
+
+    // slight surface noise (organic, not blobby)
+    const r = radius + (Math.random() - 0.5) * 1.2;
+
+    targetPositions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+    targetPositions[i * 3 + 1] = r * Math.cos(phi);
+    targetPositions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+  }
+}
+
+
+
+function switchShape(dir) {
+  if (isMorphing) return;
+
+  currentShapeIndex =
+    (currentShapeIndex + dir + SHAPES.length) % SHAPES.length;
+
+  const shape = SHAPES[currentShapeIndex];
+
+  // ---- Shape geometry ----
+  if (shape === 'sphere') generateSphere();
+  if (shape === 'infinity') generateInfinity();
+  if (shape === 'heart') generateHeart();
+  if (shape === 'saturn') generateSaturn();
+
+  // ---- Texture bias per shape ----
+  if (shape === 'sphere') {
+    shapeTextureBias.size = 1.3;
+    shapeTextureBias.alpha = 0.22;
+  }
+
+  if (shape === 'infinity') {
+    shapeTextureBias.size = 1.35;
+    shapeTextureBias.alpha = 0.26;
+  }
+
+  if (shape === 'heart') {
+    shapeTextureBias.size = 1.45;
+    shapeTextureBias.alpha = 0.2;
+  }
+
+  if (shape === 'saturn') {
+    shapeTextureBias.size = 1.25;
+    shapeTextureBias.alpha = 0.32;
+  }
+
+  isMorphing = true;
+  normalsDirty = true;
+
+
+  particles.rotation.set(0, 0, 0);
+  lastRotX = lastRotY = lastRotZ = 999;
+}
+
+
+//MOrph function
+function recomputeNormals() {
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    const x = positions[i * 3];
+    const y = positions[i * 3 + 1];
+    const z = positions[i * 3 + 2];
+
+    const len = Math.sqrt(x*x + y*y + z*z) || 1;
+
+    normals[i * 3]     = x / len;
+    normals[i * 3 + 1] = y / len;
+    normals[i * 3 + 2] = z / len;
+  }
+
+  geometry.attributes.normal.needsUpdate = true;
+}
+
+createSphere();
+recomputeNormals();
+generateSphere(); // target is now independent
+
+
+geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+const spriteCanvas = document.createElement('canvas');
+spriteCanvas.width = spriteCanvas.height = 64;
+const ctx = spriteCanvas.getContext('2d');
+
+// ==================== PARTICLE SPRITE (UPGRADED) ====================
+// Goal:
+// - Dense dark core
+// - Sharp energy ring
+// - Soft asymmetric halo
+// - Cleaner zoom behavior
+
+const grad = ctx.createRadialGradient(32, 32, 4, 32, 32, 28);
+
+// Core: darker, denser
+grad.addColorStop(0.0, 'rgba(140,90,220,0.18)');
+grad.addColorStop(0.18, 'rgba(160,110,240,0.25)');
+
+// Energy ring: sharper presence
+grad.addColorStop(0.42, 'rgba(210,170,255,0.55)');
+grad.addColorStop(0.55, 'rgba(230,190,255,0.9)');
+
+// Halo falloff: faster, cleaner
+grad.addColorStop(0.75, 'rgba(180,130,255,0.25)');
+grad.addColorStop(1.0, 'rgba(255,255,255,0)');
+
+ctx.clearRect(0, 0, 64, 64);
+ctx.fillStyle = grad;
+ctx.fillRect(0, 0, 64, 64);
+
+
+const texture = new THREE.CanvasTexture(spriteCanvas);
+texture.magFilter = THREE.NearestFilter;
+texture.generateMipmaps = false;
+
+const material = new THREE.PointsMaterial({
+  size: 0.85,
+  map: texture,
+  transparent: true,
+  vertexColors: true,
+  depthWrite: false,
+  blending: THREE.NormalBlending,
+  alphaTest: 0.35
+});
+
+
+const particles = new THREE.Points(geometry, material);
+scene.add(particles);
+createLockRing();
+
+// ==================== HAND TRACKING ====================
+const videoElement = document.getElementById('video');
+const skelCanvas = document.getElementById('skeleton');
+const skelCtx = skelCanvas.getContext('2d');
+
+let rawHandX = 0, rawHandY = 0, rawOpenness = 0, rawRoll = 0;
+let handX = 0, handY = 0, handOpenness = 0, handRoll = 0;
+let cameraStarted = false;
+let lastHandSeen = performance.now();
+interactionFade += (1 - interactionFade) * 0.25;
+
+let calibrating = true;
+let calibStart = performance.now();
+let openMinDyn = Infinity;
+let openMaxDyn = -Infinity;
+
+const ROTATE_SMOOTH = 0.22;
+const OPEN_MIN_FALLBACK = 0.9;
+const OPEN_MAX_FALLBACK = 1.8;
+
+const HAND_CONNECTIONS = [
+  [0,1],[1,2],[2,3],[3,4],
+  [0,5],[5,6],[6,7],[7,8],
+  [0,9],[9,10],[10,11],[11,12],
+  [0,13],[13,14],[14,15],[15,16],
+  [0,17],[17,18],[18,19],[19,20]
+];
+
+const hands = new Hands({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
+hands.setOptions({
+  maxNumHands: 2,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.7,
+  minTrackingConfidence: 0.7
+});
+
+function drawHand(lm) {
+  skelCtx.lineWidth = 2;
+  skelCtx.strokeStyle = calibrating ? '#888' : '#9b4dff';
+  skelCtx.fillStyle = '#cfa6ff';
+
+  for (const [a,b] of HAND_CONNECTIONS) {
+    skelCtx.beginPath();
+    skelCtx.moveTo(lm[a].x * skelCanvas.width, lm[a].y * skelCanvas.height);
+    skelCtx.lineTo(lm[b].x * skelCanvas.width, lm[b].y * skelCanvas.height);
+    skelCtx.stroke();
+  }
+
+  for (const p of lm) {
+    skelCtx.beginPath();
+    skelCtx.arc(p.x * skelCanvas.width, p.y * skelCanvas.height, 4, 0, Math.PI * 2);
+    skelCtx.fill();
+  }
+}
+
+function smoothLandmarks(rawLm) {
+  if (!smoothedLandmarks) {
+    // first frame → clone
+    smoothedLandmarks = rawLm.map(p => ({ ...p }));
+    return smoothedLandmarks;
+  }
+
+  for (let i = 0; i < rawLm.length; i++) {
+    smoothedLandmarks[i].x += (rawLm[i].x - smoothedLandmarks[i].x) * (1 - LANDMARK_SMOOTH);
+    smoothedLandmarks[i].y += (rawLm[i].y - smoothedLandmarks[i].y) * (1 - LANDMARK_SMOOTH);
+    smoothedLandmarks[i].z += (rawLm[i].z - smoothedLandmarks[i].z) * (1 - LANDMARK_SMOOTH);
+  }
+
+  return smoothedLandmarks;
+}
+
+hands.onResults(results => {
+  const handA = results.multiHandLandmarks[0];
+  const handB = results.multiHandLandmarks[1];
+
+  skelCtx.clearRect(0,0,skelCanvas.width,skelCanvas.height);
+  const statusEl = document.getElementById('handStatus');
+
+  if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+    interactionFade *= 0.92;
+    smoothedLandmarks = null;
+    if (performance.now() - lastHandSeen > 150) {
+      statusEl.textContent = 'Hand out of tracking area';
+      statusEl.classList.remove('tracking');
+      statusEl.classList.add('lost');
+    }
+    return;
+  }
+
+  lastHandSeen = performance.now();
+  statusEl.textContent = calibrating ? 'Calibrating hand…' : 'Hand tracking active';
+  statusEl.classList.remove('lost');
+  statusEl.classList.add('tracking');
+
+  const lm = smoothLandmarks(results.multiHandLandmarks[0]);
+
+  // ---------- TWO HAND SHAPE CONTROL (STABLE) ----------
+if (results.multiHandLandmarks.length === 2) {
+  const lmA = results.multiHandLandmarks[0];
+  const lmB = results.multiHandLandmarks[1];
+
+  // start arming timer ONCE
+  if (!twoHandArmed && twoHandStartTime === 0) {
+    twoHandStartTime = performance.now();
+  }
+
+  // arm after delay
+  if (!twoHandArmed &&
+      performance.now() - twoHandStartTime > TWO_HAND_ARM_DELAY) {
+
+    twoHandArmed = true;
+    lastTwoHandDistance = null;
+
+
+    statusEl.textContent = 'Two-hand mode armed';
+    statusEl.classList.add('twohand');
+    skelCanvas.classList.add('twohand');
+  }
+
+  // ⛔ NOT ARMED YET → STOP HERE
+  if (!twoHandArmed) {
+  lastTwoHandDistance = null;
+  stableDistanceTime = 0;
+  return;
+}
+
+
+  // ---------- SHAPE CHANGE (HAND DISTANCE) ----------
+const palmA = lmA[9];
+const palmB = lmB[9];
+
+const dx = palmA.x - palmB.x;
+const dy = palmA.y - palmB.y;
+const dist = Math.hypot(dx, dy);
+
+if (!isLocked && lastTwoHandDistance !== null && !twoHandCooldown) {
+  const delta = dist - lastTwoHandDistance;
+
+  // speed gate
+  if (Math.abs(delta) > MIN_GESTURE_SPEED) {
+    gestureAccum += delta * (delta > 0 ? 0.45 : 1.15);
+
+// hard clamp to prevent runaway accumulation
+gestureAccum = THREE.MathUtils.clamp(gestureAccum, -0.35, 0.35);
+
+// stronger decay when near zero (kills jitter)
+if (Math.abs(gestureAccum) < 0.03) {
+  gestureAccum *= 0.6;
+} else {
+  gestureAccum *= 0.9;
+}
+  }
+
+  if (gestureAccum > GESTURE_THRESHOLD) {
+    switchShape(1);      // hands moving apart
+    twoHandCooldown = true;
+    gestureAccum = 0;
+  }
+
+  if (gestureAccum < -GESTURE_THRESHOLD) {
+    switchShape(-1);     // hands moving together
+    twoHandCooldown = true;
+    gestureAccum = 0;
+  }
+}
+
+// cooldown reset
+// cooldown reset (stable, time-based)
+if (lastTwoHandDistance !== null) {
+  if (Math.abs(dist - lastTwoHandDistance) < 0.02) {
+    stableDistanceTime += 1;
+
+    if (stableDistanceTime > 6) { // ~6 frames stable
+      twoHandCooldown = false;
+    }
+  } else {
+    stableDistanceTime = 0;
+  }
+}
+
+lastTwoHandDistance = dist;
+
+// ---------- LOCK GESTURE (SECOND HAND ONLY) ----------
+// prevent lock gesture during morph
+if (isMorphing) return;
+
+const wristB = lmB[0];
+const middleMCPB = lmB[9];
+
+const now = performance.now();
+
+// palm facing camera (negative = facing camera)
+const palmFacing = middleMCPB.z - wristB.z;
+
+if (palmFacing < PALM_FACING_THRESHOLD) {
+  lastLockSeenTime = now;
+
+  if (lockIntent === null) {
+    lockIntent = isLocked ? 'unlock' : 'lock';
+  }
+
+  lockProgress += LOCK_PROGRESS_SPEED;
+} else {
+  if (now - lastLockSeenTime > LOCK_GRACE_TIME) {
+    lockProgress -= LOCK_DECAY_SPEED;
+    lockIntent = null;
+  }
+}
+
+
+// clamp progress safely
+lockProgress = THREE.MathUtils.clamp(lockProgress, 0, 1);
+
+// ---------- STATUS DISPLAY ----------
+if (lockProgress > 0) {
+  statusEl.textContent = isLocked
+    ? `Unlocking… ${Math.round(lockProgress * 100)}%`
+    : `Locking… ${Math.round(lockProgress * 100)}%`;
+} else {
+  statusEl.textContent = isLocked
+    ? 'Locked'
+    : 'Hand tracking active';
+}
+
+// ---------- TOGGLE LOCK ----------
+if (lockProgress >= 1 && lockIntent) {
+  isLocked = lockIntent === 'lock';
+
+  if (isLocked) {
+    frozenRotX = particles.rotation.x;
+    frozenRotY = particles.rotation.y;
+    frozenRotZ = particles.rotation.z;
+    frozenScale = particles.scale.x;
+    frozenDepth = particles.position.z;
+  }
+
+  lockProgress = 0;
+  lockIntent = null;
+  lastLockSeenTime = 0;
+  gestureAccum = 0;
+  twoHandCooldown = true;
+  lastTwoHandDistance = null;
+}
+
+} else {
+  twoHandArmed = false;
+  twoHandStartTime = 0;
+  gestureAccum = 0;
+  twoHandCooldown = false;
+  lastTwoHandDistance = null;
+  lastLockSeenTime = performance.now();
+
+  statusEl.classList.remove('twohand');
+  skelCanvas.classList.remove('twohand');
+}
+
+
+  // ----- DRAW SKELETON -----
+  // ----- DRAW SKELETON (ALL HANDS) -----
+skelCtx.save();
+skelCtx.translate(skelCanvas.width, 0);
+skelCtx.scale(-1, 1);
+
+for (const handLm of results.multiHandLandmarks) {
+  drawHand(handLm);
+}
+
+skelCtx.restore();
+
+
+  // ---- CONTROL SIGNALS ----
+  const xNorm = (lm[9].x - 0.5) * 2;
+  rawHandX = THREE.MathUtils.clamp(xNorm, -0.85, 1.0);
+  rawHandY = (0.5 - lm[9].y) * 2;
+
+  const idx = lm[8];
+  rawRoll = Math.atan2(idx.y - lm[9].y, idx.x - lm[9].x);
+
+  const palm = lm[0];
+  const tips = [lm[4], lm[8], lm[12], lm[16], lm[20]];
+  let spreadSum = 0;
+  for (const tip of tips) spreadSum += Math.hypot(tip.x - palm.x, tip.y - palm.y);
+
+  handSize = Math.hypot(lm[9].x - lm[0].x, lm[9].y - lm[0].y);
+  if (baseHandSize === null) baseHandSize = handSize;
+  rawOpenness = (spreadSum / tips.length) / Math.max(handSize, 0.001);
+  rawDepth = lm[9].z; // palm depth (negative = closer)
+
+
+  if (calibrating) {
+    openMinDyn = Math.min(openMinDyn, rawOpenness);
+    openMaxDyn = Math.max(openMaxDyn, rawOpenness);
+
+    if (performance.now() - calibStart > 2000) {
+      calibrating = false;
+      if (openMaxDyn - openMinDyn < 0.1) {
+        openMinDyn = OPEN_MIN_FALLBACK;
+        openMaxDyn = OPEN_MAX_FALLBACK;
+      }
+    }
+  }
+});
+
+const mpCamera = new Camera(videoElement, {
+  onFrame: async () => hands.send({ image: videoElement }),
+  width: 640,
+  height: 480
+});
+
+async function startCamera() {
+  if (cameraStarted) return;
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  videoElement.srcObject = stream;
+  await mpCamera.start();
+  cameraStarted = true;
+}
+
+// ==================== ANIMATION ====================
+// NOTE: We also update particle colors here to simulate
+// light coming from ONE SIDE (fake directional lighting)
+let targetScale = 1;
+
+function createLockRing() {
+  const segments = 64;
+  const radius = 75; // slightly larger than max shape
+
+  const points = [];
+  for (let i = 0; i <= segments; i++) {
+    const angle = (i / segments) * Math.PI * 2;
+    points.push(
+      new THREE.Vector3(
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius,
+        0
+      )
+    );
+  }
+
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+  lockRingMaterial = new THREE.LineBasicMaterial({
+    color: 0xf3d7a6,   // soft gold
+    transparent: true,
+    opacity: 0.0
+  });
+
+  lockRing = new THREE.Line(geometry, lockRingMaterial);
+  lockRing.rotation.x = Math.PI / 2; // face camera-ish
+  scene.add(lockRing);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  // ---------- LOCK RING VISUAL ----------
+if (lockRing) {
+  // follow object
+  lockRing.position.copy(particles.position);
+  lockRing.rotation.y = particles.rotation.y;
+
+  // fade ring in/out
+  lockRingMaterial.opacity = lockProgress > 0
+    ? THREE.MathUtils.lerp(lockRingMaterial.opacity, 0.85, 0.15)
+    : THREE.MathUtils.lerp(lockRingMaterial.opacity, 0.0, 0.2);
+
+  // show progress by scaling Y
+  lockRing.scale.y = THREE.MathUtils.lerp(
+    0.001,
+    1.0,
+    lockProgress
+  );
+
+  // subtle pulse when fully locked
+  if (isLocked) {
+    const pulse = 1 + Math.sin(performance.now() * 0.004) * 0.03;
+    lockRing.scale.set(pulse, pulse, pulse);
+  }
+}
+
+
+  handX += (rawHandX - handX) * ROTATE_SMOOTH;
+  handY += (rawHandY - handY) * ROTATE_SMOOTH;
+  handOpenness += (rawOpenness - handOpenness) * 0.08;
+  handRoll += (rawRoll - handRoll) * 0.15;
+  handDepth += (rawDepth - handDepth) * 0.1;
+
+
+  const MAX_TILT = Math.PI / 3;
+  const targetX = THREE.MathUtils.clamp(-handY * 1.25, -MAX_TILT, MAX_TILT);
+  const targetY = THREE.MathUtils.clamp(-handX * 1.25, -MAX_TILT, MAX_TILT);
+  const targetZ = THREE.MathUtils.clamp(handRoll * 0.6, -Math.PI / 4, Math.PI / 4);
+
+  const minOpen = calibrating ? OPEN_MIN_FALLBACK : openMinDyn;
+  const maxOpen = calibrating ? OPEN_MAX_FALLBACK : openMaxDyn;
+  const opennessNorm = THREE.MathUtils.clamp((handOpenness - minOpen) / (maxOpen - minOpen), 0, 1);
+  // aggressive, feels amazing
+  targetScale = THREE.MathUtils.lerp(0.75, 2.3, opennessNorm);
+
+if (!isLocked) {
+
+  const fade = interactionFade;
+
+  // ROTATION
+  particles.rotation.x += (targetX - particles.rotation.x) * 0.22 * fade;
+  particles.rotation.y += (targetY - particles.rotation.y) * 0.22 * fade;
+  particles.rotation.z += (targetZ - particles.rotation.z) * 0.15 * fade;
+
+  // SCALE (hand openness)
+  particles.scale.setScalar(
+    particles.scale.x + (targetScale - particles.scale.x) * 0.12 * fade
+  );
+
+  // DEPTH
+  depthFactor = THREE.MathUtils.clamp(
+    (handSize - baseHandSize) * 600,
+    -35,
+    35
+  );
+
+} else {
+  // 🔒 HARD FREEZE
+  particles.rotation.set(frozenRotX, frozenRotY, frozenRotZ);
+  particles.scale.setScalar(frozenScale);
+  depthFactor = frozenDepth;
+}
+
+
+particles.position.z += (depthFactor - particles.position.z) * 0.12;
+
+
+  const rotDelta =
+  Math.abs(particles.rotation.x - lastRotX) +
+  Math.abs(particles.rotation.y - lastRotY) +
+  Math.abs(particles.rotation.z - lastRotZ);
+
+colorUpdateCooldown--;
+
+if (!isLocked && (rotDelta > 0.01 || isMorphing) && colorUpdateCooldown <= 0) {
+  colorUpdateCooldown = 3; // update once every ~3 frames
+  const posArr = geometry.attributes.position.array;
+  const colArr = geometry.attributes.color.array;
+  const tempColor = new THREE.Color();
+
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    const x = posArr[i * 3];
+    const y = posArr[i * 3 + 1];
+    const z = posArr[i * 3 + 2];
+
+    const nArr = geometry.attributes.normal.array;
+
+const nx = nArr[i * 3];
+const ny = nArr[i * 3 + 1];
+const nz = nArr[i * 3 + 2];
+
+
+    // ---------- DIRECTIONAL LIGHT ----------
+const lightFactor = Math.max(
+  nx * lightDir.x +
+  ny * lightDir.y +
+  nz * lightDir.z,
+  0
+);
+
+// ---------- GRADIENTS ----------
+
+// vertical gradient (top brighter)
+const vertical = THREE.MathUtils.clamp(
+  (y + 40) / 80,
+  0,
+  1
+);
+
+let latitudeBand = 1.0;
+
+if (SHAPES[currentShapeIndex] === 'saturn') {
+  latitudeBand = 0.85 + Math.sin(y * 0.18) * 0.15;
+}
+
+
+// radial gradient (core darker, edge lighter)
+const radius = Math.hypot(x, y, z);
+
+// -------- SATURN RING SHADOW --------
+let ringShadow = 1.0;
+
+if (SHAPES[currentShapeIndex] === 'saturn') {
+  // shadow only affects core (not rings)
+  if (Math.abs(y) > 1.2 && radius < GAP_FADE_START) {
+    const shadowBand = Math.exp(-Math.abs(y) * 0.35);
+    ringShadow = 0.75 + shadowBand * 0.25;
+  }
+}
+
+const radial = THREE.MathUtils.clamp(
+  1.0 - radius / 70,
+  0,
+  1
+);
+
+// -------- ATMOSPHERIC SCATTERING (SPHERE ONLY) --------
+let atmosphere = 0.0;
+
+
+if (SHAPES[currentShapeIndex] === 'sphere') {
+  // strongest near silhouette
+  const viewEdge = Math.pow(1.0 - lightFactor, 3.0);
+  atmosphere = viewEdge * 0.25;
+}
+
+// ---------- COLOR BLEND ----------
+tempColor.copy(shadowColor);
+tempColor.lerp(midColor, (vertical * 0.6 + radial * 0.4) * latitudeBand);
+tempColor.lerp(highlightColor, lightFactor);
+
+// ---------- INTENSITY ----------
+let intensity = (0.3 + lightFactor * 0.9) * ringShadow;
+
+// Saturn gap darkening
+if (radius > GAP_FADE_START && radius < GAP_FADE_END) {
+  intensity *= THREE.MathUtils.mapLinear(
+    radius,
+    GAP_FADE_START,
+    GAP_FADE_END,
+    0.35,
+    1.0
+  );
+}
+
+// subtle rim (NOT glow)
+intensity += Math.pow(1.0 - lightFactor, 2.0) * 0.06;
+
+tempColor.multiplyScalar(intensity + atmosphere);
+
+colArr[i * 3]     = tempColor.r;
+colArr[i * 3 + 1] = tempColor.g;
+colArr[i * 3 + 2] = tempColor.b;
+
+
+}
+
+  geometry.attributes.color.needsUpdate = true;
+
+  lastRotX = particles.rotation.x;
+  lastRotY = particles.rotation.y;
+  lastRotZ = particles.rotation.z;
+}
+
+if (isMorphing) {
+  let done = true;
+  const morphSpeed = 0.08;
+
+  for (let i = 0; i < MAX_PARTICLES * 3; i++) {
+    const delta = targetPositions[i] - positions[i];
+    positions[i] += delta * morphSpeed;
+    if (Math.abs(delta) > MORPH_EPSILON) done = false;
+  }
+
+  geometry.attributes.position.needsUpdate = true;
+  if (normalsDirty) {
+  recomputeNormals();
+  normalsDirty = false;
+}
+
+
+  if (done) {
+    positions.set(targetPositions);
+    geometry.attributes.position.needsUpdate = true;
+    isMorphing = false;
+  }
+}
+
+  // -------- SATURN RING ORBIT MOTION --------
+if (SHAPES[currentShapeIndex] === 'saturn' && !isMorphing) {
+  ringAngle += 0.008; // speed (tweak if needed)
+
+  const posArr = geometry.attributes.position.array;
+
+  for (let i = 0; i < saturnRingCount; i++) {
+    const idx = saturnRingStart + i;
+
+    const bx = saturnRingBase[i * 2];
+const bz = saturnRingBase[i * 2 + 1];
+
+const r = Math.hypot(bx, bz);
+const baseAngle = Math.atan2(bz, bx);
+
+const swirl = Math.sin(baseAngle * 6 + ringAngle) * 0.008;
+const a = baseAngle + ringAngle * 0.04 + swirl;
+
+posArr[idx * 3]     = Math.cos(a) * r;
+posArr[idx * 3 + 2] = Math.sin(a) * r;
+
+  }
+
+  geometry.attributes.position.needsUpdate = true;
+}
+
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+
+// ==================== START ====================
+document.getElementById('startExperience').addEventListener('click', () => {
+  document.getElementById('intro').remove();
+  startCamera();
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
