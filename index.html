@@ -59,16 +59,120 @@
   z-index: 8;
 }
 
+  /* ===== ORBITAL CINEMATIC INTRO ===== */
 
-    #intro {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at center, #2e2e2e 0%, #000 70%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
+#intro {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(155,77,255,0.14), transparent 62%),
+    #000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  z-index: 10;
+  animation: introFadeIn 3s ease forwards;
+}
+
+@keyframes introFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------- ORBITAL RING (NEW ELEMENT #1) ---------- */
+.orbital-ring {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  border: 1px solid rgba(155,77,255,0.18);
+  box-shadow:
+    0 0 40px rgba(155,77,255,0.25),
+    inset 0 0 40px rgba(155,77,255,0.15);
+  animation: slowOrbit 28s linear infinite;
+}
+
+@keyframes slowOrbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---------- CORE ---------- */
+.intro-core {
+  position: relative;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(24px) scale(0.96);
+  animation: coreArrive 3.2s ease forwards;
+  animation-delay: 0.6s;
+}
+
+@keyframes coreArrive {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- TITLE ---------- */
+.intro-title {
+  font-size: 3.6rem;
+  font-weight: 500;
+  letter-spacing: 9px;
+  color: #eee9ff;
+  margin-bottom: 14px;
+  text-shadow:
+    0 0 28px rgba(155,77,255,0.4),
+    0 0 80px rgba(155,77,255,0.15);
+}
+
+/* ---------- SUBTITLE (NEW ELEMENT #2) ---------- */
+.intro-sub {
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  color: #9f9fb4;
+  margin-bottom: 54px;
+  text-transform: uppercase;
+}
+
+/* ---------- BUTTON ---------- */
+.intro-btn {
+  opacity: 0;
+  padding: 14px 58px;
+  font-size: 0.7rem;
+  letter-spacing: 4px;
+  color: #fff;
+  background: none;
+  border: 1px solid rgba(155,77,255,0.45);
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  animation: buttonReveal 2s ease forwards;
+  animation-delay: 2.8s;
+  transition:
+    background 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.25s ease;
+}
+
+@keyframes buttonReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.intro-btn:hover {
+  background: rgba(155,77,255,0.12);
+  box-shadow: 0 0 36px rgba(155,77,255,0.55);
+  transform: translateY(-1px);
+}
+
+    
 
     .intro-box {
   text-align: center;
@@ -229,16 +333,68 @@ body::before {
   z-index: 1;
 }
 
+/* ===== CINEMATIC EXIT TRANSITION ===== */
+
+#intro.exit {
+  pointer-events: none;
+  animation: introExit 1.2s ease forwards;
+}
+
+@keyframes introExit {
+  0% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.05);
+  }
+}
+
+#intro.exit .intro-core {
+  animation: coreExit 1.2s ease forwards;
+}
+
+@keyframes coreExit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+#intro.exit .orbital-ring {
+  animation: ringCollapse 1.2s ease forwards;
+}
+
+@keyframes ringCollapse {
+  to {
+    opacity: 0;
+    transform: scale(0.6) rotate(180deg);
+  }
+}
+
+
   </style>
 </head>
 <body>
 
 <div id="intro">
-  <div class="intro-box">
-    <h1>ARE YOU READY?</h1>
-    <button class="intro-btn" id="startExperience">YES, BEGIN</button>
+  <div class="orbital-ring"></div>
+
+  <div class="intro-core">
+    <h1 class="intro-title">ORBITAL</h1>
+    <div class="intro-sub">A Gesture-Driven Particle Experience</div>
+    <button class="intro-btn" id="startExperience">BEGIN</button>
   </div>
 </div>
+
+
 
 <div id="handStatus" class="lost">Hand not detected</div>
 <canvas id="skeleton" width="300" height="300"></canvas>
@@ -296,7 +452,7 @@ const midColor    = new THREE.Color('#6a3cff');   // main body
 const highlightColor = new THREE.Color('#c9b6ff'); // light hit
 let handDepth = 0;
 let gestureAccum = 0;
-const GESTURE_THRESHOLD = 0.14;
+const GESTURE_THRESHOLD = 0.045;
 
 const TWO_HAND_ARM_DELAY = 250; // ms
 let shapeTextureBias = {
@@ -326,7 +482,20 @@ let lockIntent = null; // 'lock' | 'unlock' | null
 let interactionFade = 1; // 1 = active, 0 = paused
 let lockRing = null;
 let lockRingMaterial = null;
-
+let lastShapeSwitchTime = 0;
+const SHAPE_SWITCH_COOLDOWN_MS = 500;
+let lastTwoHandSeenTime = 0;
+const TWO_HAND_GRACE_MS = 180;
+let stableHands = {
+  left: null,
+  right: null
+};
+const HAND_SMOOTH = 0.75; // 0.6 = snappy, 0.8 = very smooth
+let smoothTwoHandDist = null;
+let lastTwoHandOpenness = null;
+let smoothOpennessDelta = 0;
+let closingIntentStart = null;
+let openingIntentStart = null;
 
 // ==================== PARTICLES ====================
 const MAX_PARTICLES = 40000;
@@ -704,206 +873,297 @@ function smoothLandmarks(rawLm) {
   return smoothedLandmarks;
 }
 
-hands.onResults(results => {
-  const handA = results.multiHandLandmarks[0];
-  const handB = results.multiHandLandmarks[1];
+function stabilizeTwoHands(rawHands) {
+  let [h1, h2] = rawHands;
 
-  skelCtx.clearRect(0,0,skelCanvas.width,skelCanvas.height);
+  // sort left → right using palm center
+  if (h1[9].x > h2[9].x) [h1, h2] = [h2, h1];
+
+  // init on first frame
+  if (!stableHands.left || !stableHands.right) {
+    stableHands.left  = h1.map(p => ({ ...p }));
+    stableHands.right = h2.map(p => ({ ...p }));
+    return [stableHands.left, stableHands.right];
+  }
+
+  // smooth landmarks
+  for (let i = 0; i < 21; i++) {
+    stableHands.left[i].x  += (h1[i].x - stableHands.left[i].x) * (1 - HAND_SMOOTH);
+    stableHands.left[i].y  += (h1[i].y - stableHands.left[i].y) * (1 - HAND_SMOOTH);
+    stableHands.left[i].z  += (h1[i].z - stableHands.left[i].z) * (1 - HAND_SMOOTH);
+
+    stableHands.right[i].x += (h2[i].x - stableHands.right[i].x) * (1 - HAND_SMOOTH);
+    stableHands.right[i].y += (h2[i].y - stableHands.right[i].y) * (1 - HAND_SMOOTH);
+    stableHands.right[i].z += (h2[i].z - stableHands.right[i].z) * (1 - HAND_SMOOTH);
+  }
+
+  return [stableHands.left, stableHands.right];
+}
+
+
+hands.onResults((results) => {
+  const now = performance.now();
   const statusEl = document.getElementById('handStatus');
+  skelCtx.clearRect(0, 0, skelCanvas.width, skelCanvas.height);
 
-  if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
-    interactionFade *= 0.92;
+  const handsArr = results.multiHandLandmarks || [];
+  const count = handsArr.length;
+
+  /* ================= NO HANDS ================= */
+  if (count === 0) {
+    stableHands.left = null;
+    stableHands.right = null;
+    smoothTwoHandDist = null;
     smoothedLandmarks = null;
-    if (performance.now() - lastHandSeen > 150) {
-      statusEl.textContent = 'Hand out of tracking area';
-      statusEl.classList.remove('tracking');
-      statusEl.classList.add('lost');
-    }
+    interactionFade *= 0.9;
+
+    twoHandArmed = false;
+    twoHandStartTime = 0;
+    lastTwoHandDistance = null;
+    lastTwoHandOpenness = null;
+    gestureAccum = 0;
+    twoHandCooldown = false;
+    closingIntentStart = null;
+    openingIntentStart = null;
+
+
+
+    statusEl.textContent = 'Hand not detected';
+    statusEl.classList.remove('tracking', 'twohand');
+    statusEl.classList.add('lost');
+    skelCanvas.classList.remove('twohand');
     return;
   }
 
-  lastHandSeen = performance.now();
-  statusEl.textContent = calibrating ? 'Calibrating hand…' : 'Hand tracking active';
+  /* ================= COMMON RECOVERY ================= */
+  // 🔥 THIS WAS MISSING — re-enable interaction
+  interactionFade += (1 - interactionFade) * 0.25;
+
   statusEl.classList.remove('lost');
   statusEl.classList.add('tracking');
 
-  const lm = smoothLandmarks(results.multiHandLandmarks[0]);
+  /* ================= DRAW ================= */
+  skelCtx.save();
+  skelCtx.translate(skelCanvas.width, 0);
+  skelCtx.scale(-1, 1);
+  for (const h of handsArr) drawHand(h);
+  skelCtx.restore();
 
-  // ---------- TWO HAND SHAPE CONTROL (STABLE) ----------
-if (results.multiHandLandmarks.length === 2) {
-  const lmA = results.multiHandLandmarks[0];
-  const lmB = results.multiHandLandmarks[1];
+  /* ================= TWO HAND MODE ================= */
+if (count === 2) {
+  const [A, B] = stabilizeTwoHands(handsArr);
 
-  // start arming timer ONCE
-  if (!twoHandArmed && twoHandStartTime === 0) {
-    twoHandStartTime = performance.now();
-  }
-
-  // arm after delay
-  if (!twoHandArmed &&
-      performance.now() - twoHandStartTime > TWO_HAND_ARM_DELAY) {
-
+  // --- ARM / debounce logic (unchanged behavior) ---
+  if (!twoHandArmed) {
+    if (twoHandStartTime === 0) twoHandStartTime = now;
+    if (now - twoHandStartTime < TWO_HAND_ARM_DELAY) {
+      lastTwoHandDistance = null;
+      return;
+    }
     twoHandArmed = true;
+    gestureAccum = 0;
     lastTwoHandDistance = null;
+    twoHandCooldown = false;
 
-
-    statusEl.textContent = 'Two-hand mode armed';
+    statusEl.textContent = 'Two-hand mode';
     statusEl.classList.add('twohand');
     skelCanvas.classList.add('twohand');
+    return;
   }
 
-  // ⛔ NOT ARMED YET → STOP HERE
-  if (!twoHandArmed) {
-  lastTwoHandDistance = null;
-  stableDistanceTime = 0;
+  // --- compute per-hand openness (same method used in single-hand) ---
+  function handOpennessFromLM(lm) {
+    const palm = lm[0];
+    const tips = [lm[4], lm[8], lm[12], lm[16], lm[20]];
+    let spread = 0;
+    for (const t of tips) spread += Math.hypot(t.x - palm.x, t.y - palm.y);
+    const hSize = Math.hypot(lm[9].x - palm.x, lm[9].y - palm.y) || 0.001;
+    return (spread / tips.length) / hSize;
+  }
+
+  const opennessA = handOpennessFromLM(A);
+  const opennessB = handOpennessFromLM(B);
+
+  // --- normalize using the same calibration as single-hand ---
+  const minOpen = calibrating ? OPEN_MIN_FALLBACK : openMinDyn;
+  const maxOpen = calibrating ? OPEN_MAX_FALLBACK : openMaxDyn;
+  const normA = THREE.MathUtils.clamp((opennessA - minOpen) / (maxOpen - minOpen), 0, 1);
+  const normB = THREE.MathUtils.clamp((opennessB - minOpen) / (maxOpen - minOpen), 0, 1);
+
+  // --- require both hands to be similarly open OR similarly closed ---
+  const SIMILARITY_THRESHOLD = 0.25; // how close the normalized openness must be
+  const OPEN_THRESHOLD = 0.6;       // considered "open"
+  const CLOSED_THRESHOLD = 0.4;     // considered "closed"
+
+  const bothOpen = (normA > OPEN_THRESHOLD && normB > OPEN_THRESHOLD && Math.abs(normA - normB) < SIMILARITY_THRESHOLD);
+  const bothClosed = (normA < CLOSED_THRESHOLD && normB < CLOSED_THRESHOLD && Math.abs(normA - normB) < SIMILARITY_THRESHOLD);
+
+  // --- distance smoothing (same as before) ---
+  const pA = A[9];
+  const pB = B[9];
+  const rawDist = Math.hypot(pA.x - pB.x, pA.y - pB.y);
+
+  if (smoothTwoHandDist === null) {
+    smoothTwoHandDist = rawDist;
+  } else {
+    smoothTwoHandDist += (rawDist - smoothTwoHandDist) * 0.25;
+  }
+
+  const dist = smoothTwoHandDist;
+
+  if (lastTwoHandDistance === null) {
+    lastTwoHandDistance = dist;
+    return;
+  }
+
+  // --- If hands are not similarly open/closed, do NOT accumulate a shape gesture.
+  //     Instead gently decay any existing accumulation so stray motion won't trigger a switch.
+  if (!(bothOpen || bothClosed)) {
+    // gentle decay so recovering to matched state is clean
+    gestureAccum *= 0.92;
+    lastTwoHandDistance = dist;
+    return;
+  }
+
+  // --- Process distance delta into gesture accumulation (like before) ---
+
+    // ---------- OPENNESS-DRIVEN GESTURE (SOFT & SLOW FRIENDLY) ----------
+
+// average normalized openness
+const avgOpen = (normA + normB) * 0.5;
+
+// init openness memory
+if (lastTwoHandOpenness === null) {
+  lastTwoHandOpenness = avgOpen;
+  lastTwoHandDistance = dist;
   return;
 }
 
 
-  // ---------- SHAPE CHANGE (HAND DISTANCE) ----------
-const palmA = lmA[9];
-const palmB = lmB[9];
+// openness delta (slow motion friendly)
+let openDelta = avgOpen - lastTwoHandOpenness;
 
-const dx = palmA.x - palmB.x;
-const dy = palmA.y - palmB.y;
-const dist = Math.hypot(dx, dy);
+// smooth it heavily (CRITICAL)
+smoothOpennessDelta += (openDelta - smoothOpennessDelta) * 0.18;
+smoothOpennessDelta *= 0.9;
 
-if (!isLocked && lastTwoHandDistance !== null && !twoHandCooldown) {
-  const delta = dist - lastTwoHandDistance;
+// distance delta used ONLY as confirmation
+const distDelta = dist - lastTwoHandDistance;
 
-  // speed gate
-  if (Math.abs(delta) > MIN_GESTURE_SPEED) {
-    gestureAccum += delta * (delta > 0 ? 0.45 : 1.15);
+// require both palms moving together
+const CLOSE_EPS = 0.020;  // keep closing sensitive
+const OPEN_EPS  = 0.028;  // opening needs clearer intent
+const palmsClosing = (openDelta < -CLOSE_EPS) && bothClosed;
+const palmsOpening = (openDelta >  OPEN_EPS)  && bothOpen;
 
-// hard clamp to prevent runaway accumulation
-gestureAccum = THREE.MathUtils.clamp(gestureAccum, -0.35, 0.35);
 
-// stronger decay when near zero (kills jitter)
-if (Math.abs(gestureAccum) < 0.03) {
-  gestureAccum *= 0.6;
-} else {
-  gestureAccum *= 0.9;
+
+// ---------- TEMPORAL INTENT FILTER (CORRECTED) ----------
+
+const INTENT_HOLD_TIME = 160; // ms (slightly lower = responsive)
+
+if (palmsClosing) {
+  if (closingIntentStart === null) closingIntentStart = now;
+  openingIntentStart = null;
 }
+else if (palmsOpening) {
+  if (openingIntentStart === null) openingIntentStart = now;
+  closingIntentStart = null;
+}
+else {
+  closingIntentStart = null;
+  openingIntentStart = null;
+}
+
+
+// ---------- ACCUMULATION ONLY AFTER STABLE INTENT ----------=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==-
+if (!twoHandCooldown && !isMorphing) {
+
+  // -------- FORWARD (PALMS CLOSING) --------
+  if (
+  closingIntentStart !== null &&
+  now - closingIntentStart > INTENT_HOLD_TIME &&
+  distDelta < 0.004
+) {
+    gestureAccum += Math.abs(smoothOpennessDelta) * 1.15;
   }
 
+  // -------- BACKWARD (PALMS OPENING) --------
+  if (
+  openingIntentStart !== null &&
+  now - openingIntentStart > INTENT_HOLD_TIME &&
+  distDelta > -0.0035
+) {
+    gestureAccum -= Math.abs(smoothOpennessDelta) * 0.65;
+  }
+
+  // -------- ULTRA-SLOW DECAY --------
+  gestureAccum *= 0.992;
+
+  gestureAccum = THREE.MathUtils.clamp(
+    gestureAccum,
+    -0.35,
+    0.35
+  );
+
   if (gestureAccum > GESTURE_THRESHOLD) {
-    switchShape(1);      // hands moving apart
+    switchShape(1);
     twoHandCooldown = true;
+    lastShapeSwitchTime = now;
     gestureAccum = 0;
+    lastTwoHandDistance = null;
+    lastTwoHandOpenness = null;
+    closingIntentStart = null;
+    openingIntentStart = null;
+
+    return;
   }
 
   if (gestureAccum < -GESTURE_THRESHOLD) {
-    switchShape(-1);     // hands moving together
+    switchShape(-1);
     twoHandCooldown = true;
+    lastShapeSwitchTime = now;
     gestureAccum = 0;
-  }
-}
+    lastTwoHandDistance = null;
+    lastTwoHandOpenness = null;
+    closingIntentStart = null;
+    openingIntentStart = null;
 
-// cooldown reset
-// cooldown reset (stable, time-based)
-if (lastTwoHandDistance !== null) {
-  if (Math.abs(dist - lastTwoHandDistance) < 0.02) {
-    stableDistanceTime += 1;
-
-    if (stableDistanceTime > 6) { // ~6 frames stable
-      twoHandCooldown = false;
-    }
-  } else {
-    stableDistanceTime = 0;
-  }
-}
-
-lastTwoHandDistance = dist;
-
-// ---------- LOCK GESTURE (SECOND HAND ONLY) ----------
-// prevent lock gesture during morph
-if (isMorphing) return;
-
-const wristB = lmB[0];
-const middleMCPB = lmB[9];
-
-const now = performance.now();
-
-// palm facing camera (negative = facing camera)
-const palmFacing = middleMCPB.z - wristB.z;
-
-if (palmFacing < PALM_FACING_THRESHOLD) {
-  lastLockSeenTime = now;
-
-  if (lockIntent === null) {
-    lockIntent = isLocked ? 'unlock' : 'lock';
-  }
-
-  lockProgress += LOCK_PROGRESS_SPEED;
-} else {
-  if (now - lastLockSeenTime > LOCK_GRACE_TIME) {
-    lockProgress -= LOCK_DECAY_SPEED;
-    lockIntent = null;
+    return;
   }
 }
 
 
-// clamp progress safely
-lockProgress = THREE.MathUtils.clamp(lockProgress, 0, 1);
-
-// ---------- STATUS DISPLAY ----------
-if (lockProgress > 0) {
-  statusEl.textContent = isLocked
-    ? `Unlocking… ${Math.round(lockProgress * 100)}%`
-    : `Locking… ${Math.round(lockProgress * 100)}%`;
-} else {
-  statusEl.textContent = isLocked
-    ? 'Locked'
-    : 'Hand tracking active';
-}
-
-// ---------- TOGGLE LOCK ----------
-if (lockProgress >= 1 && lockIntent) {
-  isLocked = lockIntent === 'lock';
-
-  if (isLocked) {
-    frozenRotX = particles.rotation.x;
-    frozenRotY = particles.rotation.y;
-    frozenRotZ = particles.rotation.z;
-    frozenScale = particles.scale.x;
-    frozenDepth = particles.position.z;
+  if (twoHandCooldown && now - lastShapeSwitchTime > SHAPE_SWITCH_COOLDOWN_MS) {
+    twoHandCooldown = false;
   }
 
-  lockProgress = 0;
-  lockIntent = null;
-  lastLockSeenTime = 0;
-  gestureAccum = 0;
-  twoHandCooldown = true;
-  lastTwoHandDistance = null;
+  lastTwoHandDistance = dist;
+  return;
 }
 
-} else {
+
+  /* ================= SINGLE HAND MODE ================= */
+  // 🔒 HARD EXIT from two-hand state
   twoHandArmed = false;
   twoHandStartTime = 0;
+  lastTwoHandDistance = null;
+  lastTwoHandOpenness = null;
   gestureAccum = 0;
   twoHandCooldown = false;
-  lastTwoHandDistance = null;
-  lastLockSeenTime = performance.now();
+  smoothTwoHandDist = null;
+  closingIntentStart = null;
+  openingIntentStart = null;
+
 
   statusEl.classList.remove('twohand');
   skelCanvas.classList.remove('twohand');
-}
+
+  const lm = smoothLandmarks(handsArr[0]);
+  stableHands.left = null;
+  stableHands.right = null; 
 
 
-  // ----- DRAW SKELETON -----
-  // ----- DRAW SKELETON (ALL HANDS) -----
-skelCtx.save();
-skelCtx.translate(skelCanvas.width, 0);
-skelCtx.scale(-1, 1);
-
-for (const handLm of results.multiHandLandmarks) {
-  drawHand(handLm);
-}
-
-skelCtx.restore();
-
-
-  // ---- CONTROL SIGNALS ----
   const xNorm = (lm[9].x - 0.5) * 2;
   rawHandX = THREE.MathUtils.clamp(xNorm, -0.85, 1.0);
   rawHandY = (0.5 - lm[9].y) * 2;
@@ -913,29 +1173,18 @@ skelCtx.restore();
 
   const palm = lm[0];
   const tips = [lm[4], lm[8], lm[12], lm[16], lm[20]];
-  let spreadSum = 0;
-  for (const tip of tips) spreadSum += Math.hypot(tip.x - palm.x, tip.y - palm.y);
+  let spread = 0;
+  for (const t of tips) spread += Math.hypot(t.x - palm.x, t.y - palm.y);
 
-  handSize = Math.hypot(lm[9].x - lm[0].x, lm[9].y - lm[0].y);
+  handSize = Math.hypot(lm[9].x - palm.x, lm[9].y - palm.y);
   if (baseHandSize === null) baseHandSize = handSize;
-  rawOpenness = (spreadSum / tips.length) / Math.max(handSize, 0.001);
-  rawDepth = lm[9].z; // palm depth (negative = closer)
 
-
-  if (calibrating) {
-    openMinDyn = Math.min(openMinDyn, rawOpenness);
-    openMaxDyn = Math.max(openMaxDyn, rawOpenness);
-
-    if (performance.now() - calibStart > 2000) {
-      calibrating = false;
-      if (openMaxDyn - openMinDyn < 0.1) {
-        openMinDyn = OPEN_MIN_FALLBACK;
-        openMaxDyn = OPEN_MAX_FALLBACK;
-      }
-    }
-  }
+  rawOpenness = (spread / tips.length) / Math.max(handSize, 0.001);
+  rawDepth = lm[9].z;
 });
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const mpCamera = new Camera(videoElement, {
   onFrame: async () => hands.send({ image: videoElement }),
   width: 640,
@@ -1239,9 +1488,18 @@ animate();
 
 // ==================== START ====================
 document.getElementById('startExperience').addEventListener('click', () => {
-  document.getElementById('intro').remove();
-  startCamera();
+  const intro = document.getElementById('intro');
+
+  // trigger cinematic exit
+  intro.classList.add('exit');
+
+  // delay camera + scene start until transition completes
+  setTimeout(() => {
+    intro.remove();
+    startCamera();
+  }, 1200); // MUST match animation duration
 });
+
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
