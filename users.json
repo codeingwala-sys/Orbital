@@ -1,0 +1,20 @@
+[
+  {
+    "id": "ADMIN-0001",
+    "username": "ADMIN",
+    "gender": "neutral",
+    "avatarSeed": "admin-master",
+    "vibe": "mystic",
+    "isAdmin": true,
+    "createdAt": 1770444529699,
+    "lastActive": 1770878689618
+  },
+  {
+    "id": "8172e347-15dc-4aa3-a2f7-cd7070021fe0",
+    "username": "shibalik",
+    "gender": "male",
+    "avatarSeed": "shibalik-male",
+    "createdAt": 1770444529699,
+    "lastActive": 1770444529699
+  }
+]
