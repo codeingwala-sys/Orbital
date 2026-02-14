@@ -11,10 +11,16 @@ const PORT = process.env.PORT || 3000;
 const USERS_FILE = path.resolve("./users.json");
 
 app.use(cors({
-  origin: "https://codeingwala-sys.github.io",
+  origin: [
+    "https://codeingwala-sys.github.io",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "http://localhost:3000"
+  ],
   methods: ["GET", "POST", "PUT"],
   allowedHeaders: ["Content-Type", "x-dev-secret"]
 }));
+
 
 app.use(express.json());
 
