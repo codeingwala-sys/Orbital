@@ -242,6 +242,18 @@ const { password, ...safeUser } = user;
 res.json({ ...safeUser, showIntro });
 });
 
+// ===== ADMIN: VIEW LOGIN LOGS =====
+app.get("/admin/logs", (req, res) => {
+  const adminKey = req.headers["x-admin-key"];
+
+  if (adminKey !== process.env.ADMIN_KEY) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  const logs = readLogs();
+  res.json(logs);
+});
+
 app.listen(PORT, () => {
   console.log(`✅ Backend running on port ${PORT}`);
 });
