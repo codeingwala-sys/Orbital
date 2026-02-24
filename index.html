@@ -1,3 +1,6 @@
+<!-- updated on 13-02-2026 9:54pm -->
+<!-- generate shape updated and gesture added and enter button function added-->
+ <!-- login details can be viewed -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,17 +55,62 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
+
   width: 260px;
   height: 260px;
-  border-radius: 18px;
+
+  border-radius: 24px;
+  overflow: hidden;
+  z-index: 90;
+
+  /* TRUE GLASS LAYERING */
   background:
-    radial-gradient(circle at top left, rgba(155,77,255,0.15), transparent 60%),
-    var(--glass-dark);
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.08),
+      rgba(255,255,255,0.02)
+    );
+
+  backdrop-filter: blur(35px) saturate(180%);
+  -webkit-backdrop-filter: blur(35px) saturate(180%);
+
+  border: 1px solid rgba(255,255,255,0.15);
+
   box-shadow:
-    0 0 40px rgba(155,77,255,0.35),
-    inset 0 0 0 1px rgba(255,255,255,0.12);
-  backdrop-filter: blur(14px);
-  z-index: 8;
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+#skeleton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.004),
+    transparent 40%
+  );
+
+  pointer-events: none;
+}
+
+#skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.04) 1px,
+      transparent 1px,
+      transparent 5px
+    );
+
+  pointer-events: none;
 }
 
   /* ===== ORBITAL CINEMATIC INTRO ===== */
@@ -143,6 +191,7 @@
   font-size: 0.75rem;
   letter-spacing: 1.4px;
   text-transform: uppercase;
+  display: none;
 
   background:
     linear-gradient(135deg,
@@ -180,7 +229,7 @@
 }
 
 
-    #handStatus.tracking {
+#handStatus.tracking {
   color: #caffb3;
   box-shadow:
     0 0 26px rgba(120,255,160,0.55),
@@ -576,197 +625,134 @@ body::before {
 
 /* ===== PROFILE CREATION : REDESIGN ===== */
 
+/* ================= AUTH MODAL ================= */
+
 .profile-modal {
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(circle at center, rgba(180,140,255,0.12), transparent 60%),
-    rgba(0,0,0,0.82);
-  backdrop-filter: blur(14px);
   display: grid;
   place-items: center;
   z-index: 60;
+
+  background:
+    radial-gradient(circle at center, rgba(155,77,255,0.15), transparent 60%),
+    rgba(0,0,0,0.92);
+
+  backdrop-filter: blur(18px);
 }
 
 .profile-modal.hidden {
   display: none;
 }
 
-/* ===== CARD ===== */
 .profile-modal-card {
-  width: 380px;
-  padding: 28px;
-  border-radius: 22px;
+  width: 420px;
+  padding: 40px;
+  border-radius: 28px;
+  position: relative;
 
   background:
     linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
-    rgba(16,14,22,0.95);
+    rgba(14,12,20,0.96);
 
   box-shadow:
-    0 40px 120px rgba(0,0,0,0.85),
+    0 50px 120px rgba(0,0,0,0.85),
     inset 0 0 0 1px rgba(255,255,255,0.08);
-
-  color: #f2f2f5;
 }
 
-/* ===== TITLE ===== */
-.modal-title {
+/* HEADER */
+.auth-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.auth-title {
   font-size: 1.1rem;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  margin-bottom: 22px;
-
-  background: linear-gradient(
-    90deg,
-    #e9e1ff,
-    #ffddb0
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #e8e2ff;
+  margin-bottom: 18px;
 }
 
-/* ===== LABELS ===== */
-.profile-modal-card label {
+.auth-tabs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.auth-tab {
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.auth-tab.active {
+  background: linear-gradient(135deg, #9b4dff, #ffb86b);
+  color: #140b24;
+  border: none;
+}
+
+/* BODY */
+.auth-body label {
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   font-size: 0.7rem;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255,255,255,0.5);
 }
 
-/* ===== INPUTS ===== */
-
-.profile-modal-card select {
+.auth-body input,
+.auth-body select {
   width: 100%;
   margin-top: 8px;
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
 
   background:
     linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
 
-  border: none;
-  outline: none;
   color: #fff;
-
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
-.profile-modal-card input {
-  height: 44px;
-  padding: 0 14px;
-  font-size: 0.9rem;
-  border-radius: 10px;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
-
-  color: #fff;
+.auth-body input:focus,
+.auth-body select:focus {
+  box-shadow:
+    0 0 0 2px rgba(155,77,255,0.5),
+    0 0 20px rgba(155,77,255,0.35);
 }
 
-
-.profile-modal-card input::placeholder {
-  color: rgba(255,255,255,0.35);
-}
-
-/* ===== ACTIONS ===== */
-.modal-actions {
-  display: flex;
-  gap: 14px;
+/* SUBMIT */
+.auth-submit {
+  width: 100%;
   margin-top: 26px;
-}
-
-/* Cancel */
-.modal-actions button:first-child {
-  flex: 1;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.18);
-  color: rgba(255,255,255,0.7);
+  padding: 16px;
   border-radius: 999px;
-  padding: 12px;
+  border: none;
   cursor: pointer;
-}
 
-/* Create */
-.modal-actions button:last-child {
-
-  /* dynamic vibe colors */
   --vibe-a: #9b4dff;
   --vibe-b: #ffb86b;
 
-  flex: 1;
-  border: none;
-  border-radius: 999px;
-  padding: 12px;
-  cursor: pointer;
-
   background:
-    linear-gradient(
-      120deg,
-      var(--vibe-a),
-      var(--vibe-b),
-      var(--vibe-a)
-    );
+    linear-gradient(120deg, var(--vibe-a), var(--vibe-b), var(--vibe-a));
 
   background-size: 300% 300%;
+  animation: vibeWave 6s ease infinite;
 
   color: #140b24;
   font-weight: 600;
-
-  box-shadow:
-    0 0 28px rgba(155,77,255,0.45);
-
-  transition:
-    box-shadow 0.6s ease,
-    transform 0.25s ease;
-
-  animation: vibeWave 6s ease infinite;
+  letter-spacing: 0.1em;
 }
 
-@keyframes vibeWave {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-
-.modal-actions button:hover {
-  transform: translateY(-1px);
-}
-
-
-.profile-item.add {
-  cursor: pointer;
-}
-
-.profile-modal-card select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-.profile-modal-card select option {
-  background: #12101a;
-  color: #ffffff;
-}
-
-.profile-item.add .profile-avatar {
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at center, rgba(155,77,255,0.25), transparent 60%),
-    rgba(255,255,255,0.05);
-}
-
-.profile-item.add .profile-avatar::before {
-  content: '+';
-  font-size: 3.2rem;
-  font-weight: 300;
-  color: #ffddb0; /* warm accent */
-}
-
-
+/*Pill Group Design*/
 .pill-group {
   display: flex;
   gap: 10px;
@@ -794,12 +780,361 @@ body::before {
 #shapeEditor {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 15;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
 }
 
+
+#registerExtras {
+  overflow: hidden;
+  transition: all 0.35s ease;
+}
+
+#registerExtras.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  max-height: 0;
+  pointer-events: none;
+}
+
+#registerExtras.visible {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 500px;
+}
+
+
+/* ================= LOGIN TRANSITION ================= */
+
+.login-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at center,
+    rgba(155,77,255,0.25),
+    rgba(0,0,0,1)
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.login-transition.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.transition-core {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    #9b4dff,
+    #ffb86b
+  );
+  box-shadow:
+    0 0 60px rgba(155,77,255,0.8),
+    0 0 120px rgba(255,184,107,0.6);
+  animation: corePulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes corePulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.4);
+  }
+}
+
+
+/* Vibe selector */
+.devMoodBtn {
+  padding: 5px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: #1a0f2e;
+  color: #ddd;
+  cursor: pointer;
+}
+
+.devMoodBtn:hover {
+  background: #9b4dff;
+  color: #140b24;
+}
+
+
+/* =================================================
+   UNIFIED SIDE PANEL SYSTEM
+   ================================================= */
+
+/* ===== Floating Settings Orb ===== */
+
+.cp-orb {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+
+  border: none;
+  cursor: pointer;
+  z-index: 200;
+
+  background: linear-gradient(135deg, #ff3cac, #784ba0);
+
+  box-shadow:
+    0 0 30px rgba(255,60,200,0.6),
+    0 10px 30px rgba(0,0,0,0.5);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.cp-orb.visible {
+  opacity: 1;
+}
+
+.cp-orb:hover {
+  transform: scale(1.1);
+}
+
+/* ===== Control Panel ===== */
+
+.cp-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  bottom: calc(var(--side-panel-width) + 40px);
+
+  width: 220px;
+
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  border-radius: 24px;
+  z-index: 100;
+
+  overflow-y: auto;
+
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,60,200,0.15), transparent 45%),
+    radial-gradient(circle at 80% 90%, rgba(50,150,255,0.15), transparent 50%),
+    linear-gradient(
+      160deg,
+      rgba(18,18,28,0.95),
+      rgba(10,10,18,0.98)
+    );
+
+  backdrop-filter: blur(28px) saturate(150%);
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.6),
+    0 0 120px rgba(255,80,200,0.12);
+
+  transform: translateX(120%);
+  transition: transform 0.45s cubic-bezier(.4,0,.2,1);
+}
+
+.cp-panel.show {
+  transform: translateX(0);
+}
+
+
+/* ===== Gradient Top Accent ===== */
+
+.cp-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+
+  border-radius: 20px 20px 0 0;
+
+  background: linear-gradient(
+    90deg,
+    #ff3cac,
+    #784ba0,
+    #2b86c5
+  );
+}
+
+/* ===== Section Title ===== */
+
+.cp-title {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+}
+
+/* ===== Card ===== */
+
+.cp-card {
+  position: relative;
+  padding: 16px;
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.02)
+    );
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    inset 0 0 20px rgba(255,255,255,0.02),
+    0 8px 30px rgba(0,0,0,0.5);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ===== Buttons ===== */
+
+.cp-btn {
+  padding: 8px 12px;
+  font-size: 0.68rem;
+  border-radius: 12px;
+  border: none;
+
+  color: white;
+  cursor: pointer;
+
+  background: linear-gradient(
+    135deg,
+    #ff3cac,
+    #784ba0
+  );
+
+  box-shadow:
+    0 6px 20px rgba(255,60,160,0.4);
+
+  transition: all 0.2s ease;
+}
+
+.cp-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 30px rgba(255,60,160,0.6);
+}
+
+/* Secondary buttons */
+
+.cp-btn:not(.cp-primary) {
+  background: linear-gradient(
+    135deg,
+    #2b86c5,
+    #36d1dc
+  );
+
+  box-shadow:
+    0 6px 20px rgba(50,180,255,0.35);
+}
+
+/* Danger */
+
+.cp-danger,
+.cp-danger-soft {
+  background: linear-gradient(
+    135deg,
+    #ff416c,
+    #ff4b2b
+  );
+
+  box-shadow:
+    0 6px 20px rgba(255,70,70,0.4);
+}
+
+/* ===== Draw Mode Visibility ===== */
+
+#userEditControls {
+  display: none;
+}
+
+body.edit-mode #userEditControls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.orb-core {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9b4dff, #ff6fd8);
+  display: block;
+  margin: auto;
+  margin-top: 19px;
+  box-shadow: 0 0 12px #9b4dff;
+}
+
+
+/* ================= Smooth Sliding Tip Box ================= */
+
+.cp-tip-box {
+  padding: 14px;
+  border-radius: 14px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.05),
+    rgba(255,255,255,0.02)
+  );
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.9);
+
+  overflow: hidden;
+  position: relative;
+
+  transition: height 0.4s ease; /* smooth size change */
+}
+
+/* gradient accent */
+.cp-tip-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    #ff3cac,
+    #784ba0,
+    #2b86c5
+  );
+}
+
+/* slider wrapper */
+.tip-slider {
+  position: relative;
+  transition: transform 0.4s ease;
+}
 
   </style>
 </head>
@@ -817,8 +1152,9 @@ body::before {
 
 <div id="edgeLight"></div>
 
-<div id="handStatus" class="lost">Hand not detected</div>
-<canvas id="skeleton" width="300" height="300"></canvas>
+<div id="handStatus" class="lost" style="display:none;">Hand not detected</div>
+<canvas id="skeleton" width="300" height="300" style="display:none;"></canvas>
+
 <canvas id="shapeEditor"></canvas>
 
 <video id="video" autoplay muted playsinline style="opacity:0; transform: scaleX(-1)"></video>
@@ -827,21 +1163,6 @@ body::before {
 <!-- ================= DEV OVERLAY (HIDDEN) ================= -->
 <div id="devPanel">
   <div class="dev-title">DEV MODE</div>
-
-  <button id="devSkipBtn"
-  style="
-    width: 100%;
-    margin: 8px 0 10px;
-    padding: 8px;
-    font-size: 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    background: linear-gradient(135deg,#9b4dff,#6a0dad);
-    color: white;
-  ">
-  SKIP TO EXPERIENCE
-</button>
 
 <button id="devProfileBtn"
 style="
@@ -905,6 +1226,66 @@ style="
   GENERATE SHAPE (DEV)
 </button>
 
+  <hr style="margin:10px 0; border-color: rgba(255,255,255,0.1);">
+
+  <div class="dev-section">
+  <b>Dev Mood Control</b>
+
+  <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+    <button class="devMoodBtn" data-vibe="calm">Calm</button>
+    <button class="devMoodBtn" data-vibe="focused">Focused</button>
+    <button class="devMoodBtn" data-vibe="energetic">Energetic</button>
+    <button class="devMoodBtn" data-vibe="mystic">Mystic</button>
+  </div>
+</div>
+
+<div class="dev-section">
+  <b>Admin Controls</b>
+
+  <div style="margin:6px 0">
+    <label>
+      <input type="checkbox" id="devAdminToggle">
+      Force Admin Mode
+    </label>
+  </div>
+
+  <div style="margin-top:8px">
+  Morph Speed: <span id="devMorphVal">1.00</span>
+  <input type="range" id="devMorph" min="0.5" max="2" step="0.05" value="1">
+</div>
+
+
+  <div>
+    Glow Boost
+    <input type="range" id="devGlow" min="0.5" max="2" step="0.05" value="1">
+  </div>
+
+  <div>
+    Motion Damp
+    <input type="range" id="devMotion" min="0.5" max="2" step="0.05" value="1">
+  </div>
+
+  <div>
+    Breathe Speed
+    <input type="range" id="devBreathe" min="0.5" max="2" step="0.05" value="1">
+  </div>
+
+</div>
+
+  <button id="devResetAdmin"
+style="
+  width:100%;
+  margin-top:8px;
+  padding:6px;
+  border-radius:6px;
+  border:none;
+  background:#111;
+  color:#ff6a6a;
+">
+  RESET ADMIN OVERRIDES
+</button>
+
+
 
   <div class="dev-section">
     <b>Rendering</b>
@@ -957,12 +1338,6 @@ style="
          loop></video>
 </div>
 
-
-<div id="profileScreen" class="cinematic-profiles">
-  <div class="profile-title">WHO'S ENTERING?</div>
-  <div id="profiles" class="profile-rail"></div>
-</div>
-
 <div id="welcomeLayer">
   <div id="welcomeText">
     <div class="welcome-line">Welcome</div>
@@ -972,50 +1347,157 @@ style="
 
 <div id="transitionVeil"></div>
 
-<!-- ===== CREATE PROFILE MODAL ===== -->
-<div id="createProfileModal" class="profile-modal hidden">
-  <div class="profile-modal-card">
-    <div class="modal-title">I want to know you More</div>
-
-    <label>
-      Name
-      <input id="newProfileName" placeholder="Enter name" />
-    </label>
-
-    <label>
-      Gender
-      <select id="newProfileGender">
-        <option value="neutral">Neutral</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
-    </label>
-
-    <label>
-      Vibe
-      <div class="pill-group" id="vibeGroup">
-  <button class="pill active" data-vibe="calm">Calm</button>
-  <button class="pill" data-vibe="focused">Focused</button>
-  <button class="pill" data-vibe="energetic">Energetic</button>
-  <button class="pill" data-vibe="mystic">Mystic</button>
+<div id="gestureHint" style="
+position:fixed;
+bottom:30px;
+left:50%;
+transform:translateX(-50%);
+padding:10px 22px;
+border-radius:20px;
+background:rgba(0,0,0,0.6);
+color:#ccc;
+font-size:12px;
+letter-spacing:1px;
+z-index:15;
+opacity:0;
+transition:opacity 0.6s ease;
+pointer-events:none;
+">
+Move your hand to rotate · Open palm to scale · Two hands to switch shapes
 </div>
 
+<!-- ===== CREATE PROFILE MODAL ===== -->
 
-    </label>
+<!-- ===== AUTH MODAL ===== -->
+<div id="createProfileModal" class="profile-modal hidden">
+  <form class="profile-modal-card" autocomplete="off">
 
-    <div class="modal-actions">
-      <button id="cancelProfileBtn">Cancel</button>
-      <button id="createProfileBtn">Create</button>
+    <input type="text" style="display:none">
+    <input type="password" style="display:none">
+
+    <div class="auth-header">
+      <div class="auth-title">Orbital Access</div>
+      <div class="auth-tabs">
+        <button class="auth-tab" data-mode="register">Register</button>
+        <button class="auth-tab active" data-mode="login">Login</button>
+      </div>
+    </form>
+
+    <div class="auth-body">
+
+      <label>
+        Username
+        <input 
+      id="newProfileName" 
+      placeholder="Enter username" 
+      autocomplete="new-password"
+/>
+      </label>
+
+      <label>
+        Password
+        <input 
+        id="newProfilePassword" 
+        type="password" 
+        placeholder="Enter password"
+        autocomplete="new-password"
+      />
+      </label>
+
+      <div id="registerExtras">
+
+        <label>
+          Gender
+          <select id="newProfileGender">
+            <option value="neutral">Neutral</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </label>
+
+        <label>
+          Vibe
+          <div class="pill-group" id="vibeGroup">
+            <button class="pill active" data-vibe="calm">Calm</button>
+            <button class="pill" data-vibe="focused">Focused</button>
+            <button class="pill" data-vibe="energetic">Energetic</button>
+            <button class="pill" data-vibe="mystic">Mystic</button>
+          </div>
+        </label>
+
+      </div>
+
+      <button id="authSubmitBtn" class="auth-submit">
+        Enter
+      </button>
+
     </div>
+
   </div>
+</div>
+
+<div id="loginTransition" class="login-transition hidden">
+  <div class="transition-core"></div>
+</div>
+
+<!-- ================= USER CONTROL CONSOLE ================= -->
+
+<button id="settingsTrigger" class="cp-orb">
+  <span class="orb-core"></span>
+</button>
+
+<!-- ================= CONTROL PANEL ================= -->
+<aside id="controlPanel" class="cp-panel">
+
+  <div class="cp-header">
+    <span class="cp-title">CONTROL INTERFACE</span>
+  </div>
+
+  <div class="cp-card">
+
+    <button id="userEditToggle" class="cp-btn cp-primary">
+  ✦ Draw Mode
+</button>
+
+    <div id="userEditControls" class="cp-edit-group">
+
+      <button id="userGenerateBtn" class="cp-btn">
+        Generate Shape
+      </button>
+
+      <button id="userClearBtn" class="cp-btn cp-danger">
+        Clear Canvas
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="cp-tip-box">
+  <div class="tip-slider">
+    <p id="autoTip"></p>
+  </div>
+  </div>
+  
+
+  <div class="cp-card">
+
+    <button id="userLogoutBtn" class="cp-btn cp-danger-soft">
+      Logout
+    </button>
+
+  </div>
+
+</aside>
+
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-
 <script src="config.js"></script>
+
 <script>
 
 function assertRuntimeUnlocked() {
@@ -1028,7 +1510,6 @@ function showIntro() {
   const video = document.getElementById('introVideo');
 
   intro.style.display = 'block';
-  document.getElementById("profileScreen").style.display = "grid";
   video.pause();
   video.currentTime = 0;
   video.play().catch(() => {});
@@ -1047,6 +1528,22 @@ function showWelcomeMessage(username) {
   const nameEl = text.querySelector('.welcome-name');
 
   nameEl.textContent = username.toUpperCase();
+
+// Apply vibe gradient to welcome name
+const vibe = window.ACTIVE_VIBE || "calm";
+const [c1, c2] = VIBE_COLORS[vibe] || VIBE_COLORS["calm"];
+
+nameEl.style.background = `
+  linear-gradient(
+    180deg,
+    ${c2},
+    ${c1}
+  )
+`;
+
+nameEl.style.webkitBackgroundClip = "text";
+nameEl.style.webkitTextFillColor = "transparent";
+nameEl.style.textShadow = `0 0 80px ${c1}`;
 
   text.classList.remove('show', 'hide');
 
@@ -1082,6 +1579,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.body.appendChild(renderer.domElement);
 renderer.setClearColor(0x000000, 1);
+
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
 
 renderer.domElement.style.opacity = "0";
 renderer.domElement.style.pointerEvents = "none";
@@ -1146,7 +1646,43 @@ let lastRotX = 0;
 let lastRotY = 0;
 let lastRotZ = 0;
 
-const SHAPES = ['sphere', 'infinity', 'heart', 'saturn', 'galaxy'];
+// ===== CONTROL LINK (C + D ENTRY SYSTEM) =====
+let controlLink = 0;              // 0 → no control, 1 → full control
+let controlLinkTarget = 0;
+let controlLinkStart = 0;
+let controlLinkActive = false;
+const CONTROL_FADE_DURATION = 160;   // ms fade-in time
+
+// ===== HYBRID ROTATION SYSTEM =====
+let rotVelX = 0;
+let rotVelY = 0;
+let rotVelZ = 0;
+
+// ===== ACCELERATION-BASED IMPULSE SYSTEM =====
+let prevHandSpeed = 0;
+let impulseCooldown = false;
+let impulseTimer = 0;
+
+const DEAD_ZONE = 0.01;               // ignore tiny jitter
+const ACCEL_THRESHOLD = 0.02;         // acceleration trigger
+const SPEED_THRESHOLD = 0.03;         // sustained speed trigger
+const MAX_ROT_VEL = 0.25;             // cap spin
+const IMPULSE_COOLDOWN_MS = 250;      // prevent stacking
+let previousShapeBeforeEdit = null;
+
+
+let lastHandX = 0;
+let lastHandY = 0;
+let lastHandRoll = 0;
+
+const FOLLOW_STRENGTH = 0.18;
+const IMPULSE_THRESHOLD = 0.035;
+const IMPULSE_POWER = 1.6;
+const INERTIA_FRICTION = 0.96;
+const BRAKE_POWER = 0.08;
+
+
+const SHAPES = ['sphere', 'infinity', 'heart', 'saturn', 'spiral', 'butterfly'];
 
 
 //================== Global Variables ================
@@ -1173,11 +1709,18 @@ let saturnRingBase = null;
 let midColor = new THREE.Color();
 let highlightColor = new THREE.Color();
 
+//Spiral animation Constants
+let spiralBase = null;
+let spiralPhase = 0;
+let spiralCorePhase = 0;
+
+
 // light hit
 let handDepth = 0;
 let gestureAccum = 0;
 const GESTURE_THRESHOLD = 0.045;
 let lastTier = null;
+let butterflyTime = 0;
 
 
 const TWO_HAND_ARM_DELAY = 250; // ms
@@ -1189,7 +1732,7 @@ let colorUpdateCooldown = 0;
 let colorFrameSkip = 0;
 
 let smoothedLandmarks = null;
-const LANDMARK_SMOOTH = 0.65; // higher = smoother, lower = snappier
+const LANDMARK_SMOOTH = 0.25; // higher = smoother, lower = snappier
 let isLocked = false;
 let lockProgress = 0;          // 0 → 1
 
@@ -1209,9 +1752,10 @@ let stableHands = {
   left: null,
   right: null
 };
-const HAND_SMOOTH = 0.75; // 0.6 = snappy, 0.8 = very smooth
+const HAND_SMOOTH = 0.5; // 0.6 = snappy, 0.8 = very smooth
 let smoothTwoHandDist = null;
 let lastTwoHandOpenness = null;
+
 let smoothOpennessDelta = 0;
 let closingIntentStart = null;
 let openingIntentStart = null;
@@ -1253,6 +1797,19 @@ let selectedVibe = "calm";
 const BASE_SCALE = 1.75;
 const tempColor = new THREE.Color();
 
+
+// ================= DUAL STILLNESS EDIT GESTURE =================
+let dualStillActive = false;
+let dualStillStart = 0;
+let dualStillCooldownUntil = 0;
+
+const DUAL_OPEN_THRESHOLD = 0.75;
+const DUAL_CLOSED_THRESHOLD = 0.25;
+const DUAL_HOLD_TIME = 900;        // ms
+const DUAL_MOVE_THRESHOLD = 0.0025;
+
+
+
 // ================= APP MODE SYSTEM =================
 const APP_MODE = {
   VIEW: "view",
@@ -1261,6 +1818,17 @@ const APP_MODE = {
 
 let currentMode = APP_MODE.VIEW;
 let savedParticleSize = null;
+let customMorphBoost = 1;
+let customShapeActive = false;
+
+let vibeSettings = {
+  morphSpeed: 1,
+  motionDamp: 1,
+  glowBoost: 1,
+  colorShift: 0,
+  breatheSpeed: 1,
+  depthSoftness: 1
+};
 
 
 const VIBE_COLORS = {
@@ -1288,10 +1856,16 @@ const SHAPE_COLORS = {
     mid: new THREE.Color('#ffb86b'),
     highlight: new THREE.Color('#fff1c1')
   },
-  galaxy: {
-    mid: new THREE.Color('#5b4bff'),
-    highlight: new THREE.Color('#d6d1ff')
-  }
+  butterfly: {
+  mid: new THREE.Color('#ff6fd8'),
+  highlight: new THREE.Color('#ffe3ff')
+},
+spiral: {
+  mid: new THREE.Color('#ffffff'),
+  highlight: new THREE.Color('#ffffff')
+},
+
+
 };
 
 // ================= PERFORMANCE GOVERNOR =================
@@ -1334,6 +1908,60 @@ function updateSimulationTier() {
 
 
 let ambientLightLevel = 1;
+
+
+const tips = [
+  "Move slowly to gently attract particles.",
+  "Switch to Draw Mode to design your own flow.",
+  "Try fast gestures to create burst effects.",
+  "Changing vibe alters motion personality.",
+  "Use Clear to reset and experiment again."
+];
+
+const tipBox = document.querySelector(".cp-tip-box");
+const tipSlider = document.querySelector(".tip-slider");
+
+let tipIndex = 0;
+
+function updateTip(newText) {
+  // Create temporary element to measure new height
+  const temp = document.createElement("p");
+  temp.style.visibility = "hidden";
+  temp.style.position = "absolute";
+  temp.style.width = tipBox.offsetWidth - 28 + "px";
+  temp.textContent = newText;
+  document.body.appendChild(temp);
+
+  const newHeight = temp.offsetHeight + 28;
+  document.body.removeChild(temp);
+
+  // Set container to current height first
+  tipBox.style.height = tipBox.offsetHeight + "px";
+
+  // Slide out
+  tipSlider.style.transform = "translateY(-10px)";
+  tipSlider.style.opacity = "0";
+
+  setTimeout(() => {
+    tipSlider.innerHTML = `<p>${newText}</p>`;
+    tipSlider.style.transform = "translateY(10px)";
+    tipSlider.style.opacity = "0";
+
+    tipBox.style.height = newHeight + "px";
+
+    setTimeout(() => {
+      tipSlider.style.transform = "translateY(0)";
+      tipSlider.style.opacity = "1";
+    }, 50);
+  }, 300);
+}
+
+updateTip(tips[tipIndex]);
+
+setInterval(() => {
+  tipIndex = (tipIndex + 1) % tips.length;
+  updateTip(tips[tipIndex]);
+}, 5000);
 
 // ==================== PARTICLES ====================
 let MAX_PARTICLES = 24000;
@@ -1490,56 +2118,106 @@ function generateSaturn() {
 }
 
 
-function generateGalaxy() {
-  const ARMS = 4;
-  const MAX_RADIUS = 60;
-  const CORE_RADIUS = 7;
+function generateSpiral() {
 
-  galaxyBase  = new Float32Array(effectiveParticleCount * 3);
-  galaxyPhase = new Float32Array(effectiveParticleCount);
+  const arms = 4;
+  const radiusMax = 95;
+  const spin = 2.8;
+  const armSpread = 0.18;     // smaller = cleaner arms
+  const coreRadius = 20;
 
   for (let i = 0; i < effectiveParticleCount; i++) {
-    const r = Math.pow(Math.random(), 0.55) * MAX_RADIUS;
-    const arm = Math.floor(Math.random() * ARMS);
 
-    const armAngle = arm * (Math.PI * 2 / ARMS);
-    const spiral = r * 0.22;
+    const r = Math.pow(Math.random(), 1.5) * radiusMax;
+
+    const armIndex = Math.floor(Math.random() * arms);
+    const armOffset = (armIndex / arms) * Math.PI * 2;
 
     const angle =
-      armAngle +
-      spiral +
-      (Math.random() - 0.5) * 0.45;
+      armOffset +
+      r * 0.045 * spin +
+      (Math.random() - 0.5) * armSpread;
 
-    const height =
+    let x = Math.cos(angle) * r;
+    let z = Math.sin(angle) * r;
+
+    // Dense clean core
+    if (r < coreRadius) {
+      x *= 0.55;
+      z *= 0.55;
+    }
+
+    const y =
       (Math.random() - 0.5) *
-      THREE.MathUtils.lerp(8, 1.5, r / MAX_RADIUS);
-
-    const bulge =
-      r < CORE_RADIUS
-        ? (Math.random() - 0.5) * 9
-        : 0;
-
-    const x = Math.cos(angle) * r;
-    const z = Math.sin(angle) * r;
-    const y = height + bulge;
-
-    galaxyBase[i * 3]     = x;
-    galaxyBase[i * 3 + 1] = y;
-    galaxyBase[i * 3 + 2] = z;
+      THREE.MathUtils.lerp(18, 4, r / radiusMax);
 
     targetPositions[i * 3]     = x;
     targetPositions[i * 3 + 1] = y;
     targetPositions[i * 3 + 2] = z;
+  }
+  // store clean base
+spiralBase = new Float32Array(targetPositions);
 
-    galaxyPhase[i] = Math.random() * Math.PI * 2;
+}
+
+function createBackgroundStars() {
+
+  const starGeo = new THREE.BufferGeometry();
+  const starCount = 2000;
+  const starPos = new Float32Array(starCount * 3);
+
+  for (let i = 0; i < starCount; i++) {
+    starPos[i * 3]     = (Math.random() - 0.5) * 2000;
+    starPos[i * 3 + 1] = (Math.random() - 0.5) * 2000;
+    starPos[i * 3 + 2] = (Math.random() - 0.5) * 2000;
   }
 
-  particles.rotation.y = Math.random() * Math.PI * 2;
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+
+  const starMat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 1,
+    transparent: true,
+    opacity: 0.3
+  });
+
+  const stars = new THREE.Points(starGeo, starMat);
+  scene.add(stars);
+}
+
+createBackgroundStars();
+
+
+
+function generateButterfly() {
+
+  const scale = 6.5;
+
+  for (let i = 0; i < effectiveParticleCount; i++) {
+
+    const t = Math.random() * Math.PI * 2;
+
+    // classic butterfly curve
+    const r =
+      Math.exp(Math.cos(t))
+      - 2 * Math.cos(4 * t)
+      + Math.pow(Math.sin(t / 12), 5);
+
+    const x = Math.sin(t) * r * scale;
+    const y = Math.cos(t) * r * scale;
+
+    // depth thickness (wing body separation)
+    const depth =
+      (Math.random() - 0.5) *
+      THREE.MathUtils.lerp(22, 6, Math.abs(Math.sin(t)));
+
+    targetPositions[i * 3]     = x;
+    targetPositions[i * 3 + 1] = y * 1.25;
+    targetPositions[i * 3 + 2] = depth;
+  }
 }
 
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function generateSphere() {
   const radius = 45;
@@ -1569,6 +2247,7 @@ function switchShape(dir) {
   if (isMorphing) return;
 
   previousShapeIndex = currentShapeIndex;
+  customShapeActive = false;
   // clear transient gesture memory (safe, deterministic)
   gestureAccum = 0;
   lastTwoHandDistance = null;
@@ -1596,12 +2275,6 @@ if (profile) {
 
 } 
 
-  // 🚨 STOP galaxy autonomous motion when leaving it
-if (shape !== 'galaxy') {
-  galaxyBase = null;
-}
-
-
   // ----- RESET SATURN STATE WHEN LEAVING IT -----
 if (shape !== 'saturn') {
   saturnRingStart = 0;
@@ -1616,7 +2289,8 @@ if (shape !== 'saturn') {
   if (shape === 'infinity') generateInfinity();
   if (shape === 'heart') generateHeart();
   if (shape === 'saturn') generateSaturn();
-  if (shape === 'galaxy') generateGalaxy();
+  if (shape === 'spiral') generateSpiral();
+  if (shape === 'butterfly') generateButterfly();
 
 
 
@@ -1633,19 +2307,27 @@ if (shape !== 'saturn') {
   } else if (shape === 'saturn') {
     shapeTextureBias.size = 1.25;
     shapeTextureBias.alpha = 0.32;
-  }else if (shape === 'galaxy') {
-  shapeTextureBias.size = 1.45;
-  shapeTextureBias.alpha = 0.22;
-}
+  }
 
   isMorphing = true;
   normalsDirty = true;
 
   particles.rotation.set(0, 0, 0);
 
+  camera.position.x = 0;
+  camera.position.y = 0;
+  camera.position.z = 130;
+
+
   lastRotX = particles.rotation.x;
   lastRotY = particles.rotation.y;
   lastRotZ = particles.rotation.z;
+
+  // Face butterfly toward camera
+if (shape === 'butterfly') {
+  particles.rotation.y = Math.PI / 2;
+}
+
 
 }
 
@@ -1657,7 +2339,9 @@ function regenerateCurrentProceduralShape() {
   if (shape === 'infinity') generateInfinity();
   if (shape === 'heart') generateHeart();
   if (shape === 'saturn') generateSaturn();
-  if (shape === 'galaxy') generateGalaxy();
+  if (shape === 'spiral') generateSpiral();
+  if (shape === 'butterfly') generateButterfly();
+
 
   isMorphing = true;
   normalsDirty = true;
@@ -1739,7 +2423,9 @@ const material = new THREE.ShaderMaterial({
     uMidColor: { value: new THREE.Color('#6a3cff') },
     uHighlightColor: { value: new THREE.Color('#c9b6ff') },
     uTime: { value: 0 },
-    uSize: { value: 2.0 }
+    uSize: { value: 2.0 },
+    uGlowBoost: { value: 1.0 }
+    
   },
 
   vertexShader: `
@@ -1769,6 +2455,7 @@ const material = new THREE.ShaderMaterial({
     uniform vec3 uLightDir;
     uniform vec3 uMidColor;
     uniform vec3 uHighlightColor;
+    uniform float uGlowBoost;
 
     varying vec3 vNormal;
     varying vec3 vPosition;
@@ -1789,10 +2476,12 @@ const material = new THREE.ShaderMaterial({
       float rim = pow(1.0 - lightFactor, 2.0) * 0.15;
       color += rim;
 
-      float depthFade = smoothstep(120.0, 0.0, length(vPosition));
+      float depthFade = smoothstep(150.0, 0.0, length(vPosition));
+      float coreBoost = smoothstep(40.0, 0.0, length(vPosition)) * 0.6;
+      color += coreBoost;
       color *= depthFade;
 
-      gl_FragColor = vec4(color, tex.a * 0.55);
+      gl_FragColor = vec4(color, tex.a * 0.55 * uGlowBoost);
 
     }
   `,
@@ -1992,10 +2681,7 @@ function sampleAmbientLight(video) {
 
 
 hands.onResults((results) => {
-
-    if (currentMode === APP_MODE.EDIT) {
-    return;
-  }
+  
 
   let targetOpacity = 0;
   const now = performance.now();
@@ -2027,16 +2713,6 @@ if (edgeLightActive) {
 else if (count === 2) {
   pillText = 'Two-hand control';
   statusEl.classList.add('tracking', 'twohand');
-}
-
-// 3️⃣ Galaxy idle
-else if (
-  count === 1 &&
-  SHAPES[currentShapeIndex] === 'galaxy' &&
-  !isLocked
-) {
-  pillText = 'Gravitational field engaged';
-  statusEl.classList.add('tracking');
 }
 
 // 4️⃣ Single hand
@@ -2124,6 +2800,10 @@ edgeLightPerfMode = edgeLightActive;
   /* ================= NO HANDS ================= */
   if (count === 0) {
 
+    // 🔻 When hands lost → drop control link
+  controlLinkTarget = 0;
+  controlLinkActive = false;
+
   // allow brief MediaPipe dropouts without resetting orientation
   if (performance.now() - lastHandSeenTime < HAND_LOSS_GRACE_MS) {
     return;
@@ -2134,6 +2814,8 @@ edgeLightPerfMode = edgeLightActive;
   stableHands.right = null;
   smoothTwoHandDist = null;
   smoothedLandmarks = null;
+  dualStillActive = false;
+  
 
   return;
 }
@@ -2141,17 +2823,24 @@ edgeLightPerfMode = edgeLightActive;
 
   /* ================= COMMON RECOVERY ================= */
 
+  // ===== CONTROL LINK ACTIVATION =====
+if (!controlLinkActive) {
+  controlLinkActive = true;
+  controlLinkStart = performance.now();
+  controlLinkTarget = 1;
+
+  // Sync hand baseline to avoid impulse spike
+  lastHandX = handX;
+  lastHandY = handY;
+  lastHandRoll = handRoll;
+
+  rotVelX = 0;
+  rotVelY = 0;
+  rotVelZ = 0;
+}
+
   statusEl.classList.remove('lost');
   statusEl.classList.add('tracking');
-
-  // ===== GALAXY STATUS TEXT (SINGLE SOURCE OF TRUTH) =====
-  if (
-  SHAPES[currentShapeIndex] === 'galaxy' &&
-  !twoHandArmed &&
-  !isLocked
-)
-
-
 
   /* ================= DRAW ================= */
   if (count === 1 && smoothedLandmarks) {
@@ -2166,9 +2855,90 @@ else if (count === 2 && stableHands.left && stableHands.right) {
   /* ================= TWO HAND MODE ================= */
 if (count === 2) {
   const [A, B] = stabilizeTwoHands(handsArr);
+
   // ===== DRAW (STABLE TWO HANDS ONLY) =====
   drawHand(A);
   drawHand(B);
+
+  
+  // ================= DUAL STILLNESS DETECTION =================
+
+  if (
+  (currentMode === APP_MODE.VIEW || currentMode === APP_MODE.EDIT) &&
+
+  performance.now() > dualStillCooldownUntil &&
+  !isMorphing &&
+  !isLocked
+) {
+
+  function openness(lm) {
+    const palm = lm[0];
+    const tips = [lm[4], lm[8], lm[12], lm[16], lm[20]];
+    let spread = 0;
+    for (const t of tips)
+      spread += Math.hypot(t.x - palm.x, t.y - palm.y);
+    const hSize = Math.hypot(lm[9].x - palm.x, lm[9].y - palm.y) || 0.001;
+    return (spread / tips.length) / hSize;
+  }
+
+  const openA = openness(A);
+  const openB = openness(B);
+
+  const minOpen = calibrating ? OPEN_MIN_FALLBACK : openMinDyn;
+  const maxOpen = calibrating ? OPEN_MAX_FALLBACK : openMaxDyn;
+
+  const normA = THREE.MathUtils.clamp((openA - minOpen) / (maxOpen - minOpen), 0, 1);
+  const normB = THREE.MathUtils.clamp((openB - minOpen) / (maxOpen - minOpen), 0, 1);
+
+  const oneOpenOneClosed =
+    (normA > DUAL_OPEN_THRESHOLD && normB < DUAL_CLOSED_THRESHOLD) ||
+    (normB > DUAL_OPEN_THRESHOLD && normA < DUAL_CLOSED_THRESHOLD);
+
+  // movement check (very strict)
+  const moveA =
+    Math.abs(A[9].x - stableHands.left[9].x) +
+    Math.abs(A[9].y - stableHands.left[9].y);
+
+  const moveB =
+    Math.abs(B[9].x - stableHands.right[9].x) +
+    Math.abs(B[9].y - stableHands.right[9].y);
+
+  const veryStill =
+    moveA < DUAL_MOVE_THRESHOLD &&
+    moveB < DUAL_MOVE_THRESHOLD;
+
+  if (oneOpenOneClosed && veryStill) {
+
+    if (!dualStillActive) {
+      dualStillActive = true;
+      dualStillStart = performance.now();
+    }
+
+    if (performance.now() - dualStillStart > DUAL_HOLD_TIME) {
+
+  dualStillCooldownUntil = performance.now() + 1500;
+  dualStillActive = false;
+
+  customMorphBoost = 1.4;
+  particles.scale.multiplyScalar(0.93);
+
+  if (currentMode === APP_MODE.VIEW) {
+  enterEditMode();
+} else {
+  customShapeActive = false;
+  regenerateCurrentProceduralShape();
+  exitEditMode(true);
+}
+
+  return;
+}
+
+
+  } else {
+    dualStillActive = false;
+  }
+}
+
 
 
   // --- ARM / debounce logic (unchanged behavior) ---
@@ -2223,7 +2993,7 @@ if (count === 2) {
   if (smoothTwoHandDist === null) {
     smoothTwoHandDist = rawDist;
   } else {
-    smoothTwoHandDist += (rawDist - smoothTwoHandDist) * 0.25;
+    smoothTwoHandDist += (rawDist - smoothTwoHandDist) * 0.4;
   }
 
   const dist = smoothTwoHandDist;
@@ -2277,7 +3047,7 @@ const palmsOpening = (openDelta >  OPEN_EPS)  && bothOpen;
 
 // ---------- TEMPORAL INTENT FILTER (CORRECTED) ----------
 
-const INTENT_HOLD_TIME = 160; // ms (slightly lower = responsive)
+const INTENT_HOLD_TIME = 60; // ms (slightly lower = responsive)
 
 if (palmsClosing) {
   if (closingIntentStart === null) closingIntentStart = now;
@@ -2294,7 +3064,7 @@ else {
 
 
 // ---------- ACCUMULATION ONLY AFTER STABLE INTENT ----------=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==-
-if (!twoHandCooldown) {
+if (!twoHandCooldown && !dualStillActive) {
 
   // -------- FORWARD (PALMS CLOSING) --------
   if (
@@ -2402,7 +3172,7 @@ if (!twoHandCooldown) {
 
 
 let lastHandProcess = 0;
-const HAND_FPS = 24; // protected perception rate
+const HAND_FPS = 40; // protected perception rate
 
 const mpCamera = new Camera(videoElement, {
   onFrame: async () => {
@@ -2410,6 +3180,14 @@ const mpCamera = new Camera(videoElement, {
   if (!experienceStarted) return;
 
   const now = performance.now();
+  // ===== CONTROL LINK FADE =====
+if (controlLinkActive) {
+  const elapsed = now - controlLinkStart;
+  controlLink = Math.min(1, elapsed / CONTROL_FADE_DURATION);
+} else {
+  controlLink += (0 - controlLink) * 0.08;
+}
+
   if (now - lastHandProcess < 1000 / HAND_FPS) return;
   lastHandProcess = now;
 
@@ -2434,15 +3212,25 @@ async function startCamera() {
 // ================= EDIT MODE CONTROL =================
 
 function enterEditMode() {
+  previousShapeBeforeEdit = currentShapeIndex;
   currentMode = APP_MODE.EDIT;
+  document.body.classList.add("edit-mode");
 
   savedParticleSize = particles.material.uniforms.uSize.value;
   particles.material.uniforms.uSize.value = savedParticleSize * 0.7;
+
+  particles.scale.setScalar(particles.scale.x * 0.94);
+  particles.rotation.x *= 0.85;
+  particles.rotation.y *= 0.85;
 
   editorCanvas.style.opacity = "1";
   editorCanvas.style.pointerEvents = "auto";
 
   handStatusEl.textContent = "Edit Mode (Press ESC to exit)";
+
+  if (typeof updateUserPanel === "function") {
+  updateUserPanel();
+}
 
 }
 
@@ -2450,6 +3238,9 @@ function enterEditMode() {
 function exitEditMode(revert = true) {
 
   currentMode = APP_MODE.VIEW;
+  document.body.classList.remove("edit-mode");
+
+  customShapeActive = false;
 
   editorCanvas.style.opacity = "0";
   editorCanvas.style.pointerEvents = "none";
@@ -2461,9 +3252,25 @@ function exitEditMode(revert = true) {
   editorCtx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
   currentPath = [];
 
-  if (revert) {
-    regenerateCurrentProceduralShape();
+  if (revert && previousShapeBeforeEdit !== null) {
+
+    currentShapeIndex = previousShapeBeforeEdit;
+
+    const shape = SHAPES[currentShapeIndex];
+
+    if (shape === 'sphere') generateSphere();
+    if (shape === 'infinity') generateInfinity();
+    if (shape === 'heart') generateHeart();
+    if (shape === 'saturn') generateSaturn();
+    if (shape === 'spiral') generateSpiral();
+    if (shape === 'butterfly') generateButterfly();
+
+    isMorphing = true;
+    normalsDirty = true;
+    customShapeActive = false;
   }
+
+  updateUserPanel();
 }
 
 
@@ -2493,10 +3300,9 @@ editorCanvas.addEventListener("pointermove", (e) => {
   drawEditor();
 });
 
-editorCanvas.addEventListener("pointerup", () => {
+editorCanvas.addEventListener("pointerup", (e) => {
   drawing = false;
   editorCanvas.releasePointerCapture(e.pointerId);
-
 });
 
 
@@ -2631,7 +3437,7 @@ for (let i = 0; i < count; i++) {
 const radial = Math.hypot(x, y) / DRAW_WORLD_SIZE;
 
 // more depth near center, less near edges
-const depthSpread = THREE.MathUtils.lerp(22, 8, radial);
+const depthSpread = THREE.MathUtils.lerp(28, 8, radial);
 
 targetPositions[i * 3 + 2] =
   (Math.random() - 0.5) * depthSpread;
@@ -2641,8 +3447,12 @@ targetPositions[i * 3 + 2] =
 
   isMorphing = true;
   normalsDirty = true;
+  customShapeActive = true;   // 🔒 prevent saturn/galaxy overrides
+  customMorphBoost = 1.25;
+  // Clear drawing overlay but stay in edit mode
+editorCtx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+currentPath = [];
 
-  exitEditMode(false);
 }
 
 
@@ -2654,8 +3464,63 @@ let targetScale = 1;
 let animationRunning = false;
 let visualsReady = false; // ⬅ blocks first frames
 
-function animate() {
+function applyVibe(vibe) {
 
+  if (vibe === "calm") {
+    vibeSettings.morphSpeed = 0.85;
+    vibeSettings.motionDamp = 1.15;
+    vibeSettings.glowBoost = 0.9;
+    vibeSettings.colorShift = 0;
+    vibeSettings.breatheSpeed = 0.6;
+    vibeSettings.depthSoftness = 1.2;
+  }
+
+  else if (vibe === "focused") {
+    vibeSettings.morphSpeed = 1.0;
+    vibeSettings.motionDamp = 1.3;
+    vibeSettings.glowBoost = 0.8;
+    vibeSettings.colorShift = 0;
+    vibeSettings.breatheSpeed = 0.4;
+    vibeSettings.depthSoftness = 0.8;
+  }
+
+  else if (vibe === "energetic") {
+    vibeSettings.morphSpeed = 1.3;
+    vibeSettings.motionDamp = 0.85;
+    vibeSettings.glowBoost = 1.35;
+    vibeSettings.colorShift = 0;
+    vibeSettings.breatheSpeed = 1.8;
+    vibeSettings.depthSoftness = 0.9;
+  }
+
+  else if (vibe === "mystic") {
+    vibeSettings.morphSpeed = 0.95;
+    vibeSettings.motionDamp = 0.95;
+    vibeSettings.glowBoost = 1.2;
+    vibeSettings.colorShift = 1;
+    vibeSettings.breatheSpeed = 1.0;
+    vibeSettings.depthSoftness = 1.1;
+  }
+
+  // === APPLY VIBE COLOR TO PARTICLES ===
+const [baseHex, highlightHex] = VIBE_COLORS[vibe];
+
+const baseColor = new THREE.Color(baseHex);
+const highlightColor = new THREE.Color(highlightHex);
+
+material.uniforms.uMidColor.value.copy(baseColor);
+material.uniforms.uHighlightColor.value.copy(highlightColor);
+
+}
+
+
+function animate() {
+  if (currentTier === SIMULATION_TIER.IDLE && lastHandCount === 0) {
+  if (galaxyTick++ % 3 !== 0) {
+    requestAnimationFrame(animate);
+    return;
+  }
+}
 
   if (!experienceStarted || !visualsReady) {
   requestAnimationFrame(animate);
@@ -2663,15 +3528,28 @@ function animate() {
 }
 
 
-    if (currentMode === APP_MODE.EDIT) {
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-    return;
-  }
+  if (currentMode === APP_MODE.EDIT && !isMorphing) {
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+  return;
+}
 
 
   const now = performance.now();
   material.uniforms.uTime.value = now * 0.001;
+  material.uniforms.uGlowBoost.value = vibeSettings.glowBoost;
+
+  if (vibeSettings.colorShift && SHAPES[currentShapeIndex] !== 'spiral') {
+  const t = now * 0.00025;
+  const hueShift = Math.sin(t) * 0.08;
+
+  const base = SHAPE_COLORS[SHAPES[currentShapeIndex]].mid.clone();
+  base.offsetHSL(hueShift, 0, 0);
+
+  material.uniforms.uMidColor.value.copy(base);
+}
+
+
   const dt = now - lastFrameTime;
   lastFrameTime = now;
 
@@ -2744,10 +3622,21 @@ material.blending  = THREE.NormalBlending;
 material.alphaTest = 0.18;
 
 // cinematic exceptions
-if (SHAPES[currentShapeIndex] === 'saturn' || SHAPES[currentShapeIndex] === 'galaxy') {
+if (SHAPES[currentShapeIndex] === 'saturn') {
   material.blending  = THREE.AdditiveBlending;
   material.alphaTest = 0.05;
 }
+
+  // ---- Spiral glow mode ----
+if (SHAPES[currentShapeIndex] === 'spiral') {
+  material.blending  = THREE.AdditiveBlending;
+  material.alphaTest = 0.08;
+
+  material.uniforms.uGlowBoost.value =
+  vibeSettings.glowBoost * 0.65;
+  // reduce burn
+}
+
 
 
 // ===== UI PULSE BASED ON MOTION =====
@@ -2795,15 +3684,18 @@ if (lockRing) {
 
   handX += (rawHandX - handX) * ROTATE_SMOOTH;
   handY += (rawHandY - handY) * ROTATE_SMOOTH;
-  handOpenness += (rawOpenness - handOpenness) * 0.08;
+  handOpenness += (rawOpenness - handOpenness) * 0.16;
   handRoll += (rawRoll - handRoll) * 0.15;
   handDepth += (rawDepth - handDepth) * 0.1;
 
 
-  const MAX_TILT = Math.PI / 3;
-  const targetX = THREE.MathUtils.clamp(-handY * 1.25, -MAX_TILT, MAX_TILT);
-  const targetY = THREE.MathUtils.clamp(-handX * 1.25,-MAX_TILT,MAX_TILT);
-  const targetZ = THREE.MathUtils.clamp(handRoll * 0.6, -Math.PI / 4, Math.PI / 4);
+  // === Tuned 360° rotation (controlled but full range) ===
+const ROTATION_GAIN = Math.PI * 1.2;   // reduce intensity
+
+const targetX = -handY * ROTATION_GAIN;
+const targetY = -handX * ROTATION_GAIN;
+const targetZ = handRoll * (ROTATION_GAIN * 0.6);
+
 
   const minOpen = calibrating ? OPEN_MIN_FALLBACK : openMinDyn;
   const maxOpen = calibrating ? OPEN_MAX_FALLBACK : openMaxDyn;
@@ -2829,38 +3721,104 @@ if (!isLocked) {
   // ROTATION
   const fade = 1.0;
 
-if (SHAPES[currentShapeIndex] === 'galaxy') {
-  particles.scale.setScalar(1.25);
-  particles.position.z = 0;
-}
-
-
 // 👉 NORMAL SHAPES ROTATE DIRECTLY
 const rotSpeed =
   SHAPES[currentShapeIndex] === 'saturn'
     ? 0.38   // faster, more physical
     : 0.22;  // default cinematic
 
-particles.rotation.x += (targetX - particles.rotation.x) * rotSpeed * fade;
-particles.rotation.y += (targetY - particles.rotation.y) * rotSpeed * fade;
-particles.rotation.z += (targetZ - particles.rotation.z) * (rotSpeed * 0.7) * fade;
+  // ===== HYBRID FOLLOW + IMPULSE =====
+
+  let handSpeed =
+    Math.abs(handX - lastHandX) +
+    Math.abs(handY - lastHandY) +
+    Math.abs(handRoll - lastHandRoll);
 
 
+    // ===== CLEAN SPEED MEASUREMENT =====
+if (handSpeed < DEAD_ZONE) handSpeed = 0;
 
-// SCALE (shared)
-// SCALE (base × gesture)
+const acceleration = handSpeed - prevHandSpeed;
+
+// cooldown timer
+if (impulseCooldown) {
+  impulseTimer -= 16; // approx frame time
+  if (impulseTimer <= 0) {
+    impulseCooldown = false;
+  }
+}
+
+// ===== IMPULSE TRIGGER =====
+if (
+  controlLink > 0.6 &&
+  !impulseCooldown &&
+  acceleration > ACCEL_THRESHOLD
+) {
+
+  // strength depends on BOTH acceleration and sustained speed
+  const strength =
+    acceleration * 3 +
+    handSpeed * 1.5;
+
+  rotVelX += (targetX - particles.rotation.x) * strength;
+  rotVelY += (targetY - particles.rotation.y) * strength;
+  rotVelZ += (targetZ - particles.rotation.z) * strength * 0.6;
+
+  impulseCooldown = true;
+  impulseTimer = IMPULSE_COOLDOWN_MS;
+}
+
+
+    // normal precision follow
+    particles.rotation.x += (targetX - particles.rotation.x) * FOLLOW_STRENGTH * rotSpeed * controlLink;
+    particles.rotation.y += (targetY - particles.rotation.y) * FOLLOW_STRENGTH * rotSpeed * controlLink;
+    particles.rotation.z += (targetZ - particles.rotation.z) * FOLLOW_STRENGTH * rotSpeed * 0.7 * controlLink;
+
+    // controlled braking
+    rotVelX *= (1 - BRAKE_POWER);
+    rotVelY *= (1 - BRAKE_POWER);
+    rotVelZ *= (1 - BRAKE_POWER);
+
+  // apply inertia
+  particles.rotation.x += rotVelX * controlLink;
+  particles.rotation.y += rotVelY * controlLink;
+  particles.rotation.z += rotVelZ * controlLink;
+
+  // ===== CLAMP VELOCITY =====
+  rotVelX = Math.max(-MAX_ROT_VEL, Math.min(MAX_ROT_VEL, rotVelX));
+  rotVelY = Math.max(-MAX_ROT_VEL, Math.min(MAX_ROT_VEL, rotVelY));
+  rotVelZ = Math.max(-MAX_ROT_VEL, Math.min(MAX_ROT_VEL, rotVelZ));
+
+  // friction decay
+  rotVelX *= INERTIA_FRICTION;
+  rotVelY *= INERTIA_FRICTION;
+  rotVelZ *= INERTIA_FRICTION;
+
+  lastHandX = handX;
+  lastHandY = handY;
+  lastHandRoll = handRoll;
+  prevHandSpeed = handSpeed;
+
+
+const breathe =
+  1 +
+  Math.sin(now * 0.001 * vibeSettings.breatheSpeed) * 0.02;
+
+const scaledTarget = finalScale * breathe;
+
 particles.scale.setScalar(
   particles.scale.x +
-  (finalScale - particles.scale.x) * 0.14 * fade
+  (scaledTarget - particles.scale.x) * 0.14 * fade
 );
 
 
   // REAL DEPTH (camera z)
   depthFactor = THREE.MathUtils.clamp(
-  handDepth * -420,   // 🔥 much stronger
+  handDepth * -420 / vibeSettings.depthSoftness,
   -80,
   60
   );
+
 
 } else {
   // 🔒 HARD FREEZE
@@ -2886,18 +3844,12 @@ colorUpdateCooldown -= perfLevel < 1 ? 2 : 1;
 
 colorFrameSkip++;
 
-const motionActive =
-  rotDelta > 0.003 ||
-  Math.abs(depthFactor - particles.position.z) > 0.8 ||
-  isMorphing ||
-  SHAPES[currentShapeIndex] === 'galaxy';
-
-
 if (isMorphing) {
 
   let done = true;
 
-  const ease = 0.10; // higher = faster morph
+  const ease = 0.14 * customMorphBoost * vibeSettings.morphSpeed;
+  customMorphBoost = 1;
 
   const morphLimit = effectiveParticleCount * 3;
 
@@ -2914,55 +3866,99 @@ if (isMorphing) {
 
   geometry.attributes.position.needsUpdate = true;
 
-  if (normalsDirty && SHAPES[currentShapeIndex] !== 'galaxy') {
+  if (done) {
+  positions.set(targetPositions);
+  geometry.attributes.position.needsUpdate = true;
+  geometry.computeBoundingSphere();
+
+  if (SHAPES[currentShapeIndex] !== 'spiral') {
     recomputeNormals();
-    normalsDirty = false;
   }
 
-  if (done) {
-    positions.set(targetPositions);
-    geometry.attributes.position.needsUpdate = true;
-    geometry.computeBoundingSphere();
-    isMorphing = false;
-  }
+  isMorphing = false;
+}
 }
 
 
-// ===== GALAXY AUTONOMOUS MOTION (IMMEDIATE START) =====
-  galaxyTick += perfLevel === 1.0 ? 1 : perfLevel === 0.7 ? 0.5 : 0.25;
+ // ---- Cinematic Spiral Animation ----
+if (SHAPES[currentShapeIndex] === 'spiral' && !isMorphing && spiralBase) {
+
+  const pos = geometry.attributes.position.array;
+  const norm = geometry.attributes.normal.array;
 
 
-if (
-  SHAPES[currentShapeIndex] === 'galaxy' &&
-  galaxyBase &&
-  !isMorphing
-) {
+  const baseSpeed =
+    perfLevel === 1.0 ? 0.00025 :
+    perfLevel === 0.7 ? 0.00015 :
+                        0.00008;
 
-  const posArr = geometry.attributes.position.array;
-  const time = performance.now() * 0.0008;
+  spiralPhase += baseSpeed;
+  spiralCorePhase += baseSpeed * 2.2; // core spins faster
 
-if (galaxyTick % 2 < 1) {
+  const time = now * 0.00035;
+
   for (let i = 0; i < effectiveParticleCount; i++) {
-    const bx = galaxyBase[i * 3];
-    const by = galaxyBase[i * 3 + 1];
-    const bz = galaxyBase[i * 3 + 2];
+
+    const bx = spiralBase[i * 3];
+    const by = spiralBase[i * 3 + 1];
+    const bz = spiralBase[i * 3 + 2];
 
     const r = Math.hypot(bx, bz);
     const baseAngle = Math.atan2(bz, bx);
 
-    const spin = time * (0.25 + r * 0.002);
-    const wave =
-      Math.sin(time * 2 + galaxyPhase[i]) *
-      THREE.MathUtils.lerp(1.2, 0.15, r / 60);
+    const radialNorm = Math.min(r / 110, 1.0);
 
-    posArr[i * 3]     = Math.cos(baseAngle + spin) * r;
-    posArr[i * 3 + 1] = by + wave;
-    posArr[i * 3 + 2] = Math.sin(baseAngle + spin) * r;
+    // ---- differential rotation ----
+    const swirl =
+      r < 25
+        ? spiralCorePhase
+        : spiralPhase * (0.4 + (1.0 - radialNorm) * 0.9);
+
+    // ---- gravitational inward pull illusion ----
+    const gravity =
+      1.0 - radialNorm * 0.15;
+
+    // ---- subtle arm ripple ----
+    const ripple =
+      Math.sin(time * 1.8 + baseAngle * 6.0 + r * 0.05) * 0.018;
+
+    const angle = baseAngle + swirl + ripple;
+
+    const breathe = 1.0 + Math.sin(time + r * 0.05) * 0.01;
+
+    pos[i * 3]     = Math.cos(angle) * r * gravity * breathe;
+    pos[i * 3 + 1] = by + Math.sin(time + r * 0.02) * 0.5;
+    pos[i * 3 + 2] = Math.sin(angle) * r * gravity * breathe;
+
+    const nx = pos[i * 3];
+    const ny = pos[i * 3 + 1];
+    const nz = pos[i * 3 + 2];
+
+    const len = Math.hypot(nx, ny, nz) || 1;
+
+    norm[i * 3]     = nx / len;
+    norm[i * 3 + 1] = ny / len;
+    norm[i * 3 + 2] = nz / len;
+
   }
-}
 
   geometry.attributes.position.needsUpdate = true;
+  geometry.attributes.normal.needsUpdate = true;
+
 }
+
+
+// ---- Cinematic camera drift ----
+if (SHAPES[currentShapeIndex] === 'spiral') {
+
+  const t = performance.now() * 0.00008;
+
+  camera.position.x = Math.sin(t) * 12;
+  camera.position.z = 130 + Math.sin(t * 0.5) * 10;
+  camera.position.y = Math.cos(t * 0.7) * 6;
+  camera.lookAt(0, 0, 0);
+}
+
 
 
   // -------- SATURN RING ORBIT MOTION --------
@@ -2970,11 +3966,9 @@ if (galaxyTick % 2 < 1) {
   SHAPES[currentShapeIndex] === 'saturn' &&
   saturnRingBase &&
   !isMorphing &&
-  galaxyTick % 2 < 1
+  galaxyTick % 2 < 1 &&
+  !customShapeActive
 ) {
-
-
-
 
   const speed = perfLevel === 1.0 ? 0.008 : perfLevel === 0.7 ? 0.004 : 0.002;
   ringAngle += speed + handX * 0.002;
@@ -3005,6 +3999,8 @@ posArr[idx * 3 + 2] = Math.sin(a) * r;
   posAttr.needsUpdate = true;
 
 }
+
+
 
   if (currentTier === SIMULATION_TIER.IDLE) {
   particles.rotation.x *= 0.98;
@@ -3141,40 +4137,31 @@ posArr[idx * 3 + 2] = Math.sin(a) * r;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function enterFullscreen(e) {
-  // already fullscreen → ignore
+function enterFullscreen() {
+
+  // If already fullscreen, do nothing
   if (document.fullscreenElement) return;
 
-  // must come from real user interaction
-  if (e && e.isTrusted === false) return;
+  const element = document.documentElement;
 
-  const el = document.documentElement;
-
-  try {
-    if (el.requestFullscreen) {
-      el.requestFullscreen();
-    } else if (el.webkitRequestFullscreen) {
-      el.webkitRequestFullscreen();
-    } else if (el.msRequestFullscreen) {
-      el.msRequestFullscreen();
-    }
-  } catch (err) {
-  handStableSince = null;
-  edgeLightActive = false;
-  currentTier = SIMULATION_TIER.IDLE;
-
-  handStatusEl.textContent = 'Camera permission denied';
-  console.error(err);
+  if (element.requestFullscreen) {
+    element.requestFullscreen().catch(err => {
+      console.warn("Fullscreen failed:", err);
+    });
+  } 
+  else if (element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } 
+  else if (element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  }
 }
-
-}
-
 
 // ==================== START ====================
 function startMainExperience(e, skipIntro = false) {
 
   if (!window.CURRENT_USER) {
-  alert("Select an identity first");
+  alert("Login required");
   return;
   }
 
@@ -3183,14 +4170,29 @@ function startMainExperience(e, skipIntro = false) {
   if (experienceStarted) return;
 
   experienceStarted = true;
+
+  // 🔓 Reveal hand tracking UI AFTER full load
+document.getElementById('handStatus').style.display = 'block';
+document.getElementById('skeleton').style.display = 'block';
+
+  handStatusEl.style.display = "block";
+
+  if (window.updateUserPanel) {
+  setTimeout(window.updateUserPanel, 100);
+  }
   runtimeLocked = true;
 
   showWelcomeMessage(window.CURRENT_USER.username);
 
-  // Fullscreen only on real user gesture
-  if (e && e.isTrusted) {
-  enterFullscreen(e);
-}
+  setTimeout(() => {
+  const hint = document.getElementById("gestureHint");
+  hint.style.opacity = 1;
+
+  setTimeout(() => {
+    hint.style.opacity = 0;
+  }, 6000);
+
+}, 3500);
 
 
   const intro = document.getElementById('intro');
@@ -3232,12 +4234,9 @@ handStatusEl.addEventListener('click', (e) => {
 });
 
 
-document.getElementById('devSkipBtn').addEventListener('click', () => {
-  if (!devMode) return;
-  startMainExperience(event, true);
-});
 
 document.getElementById('devProfileBtn').addEventListener('click', () => {
+  if (!window.CURRENT_USER || window.CURRENT_USER.role !== "developer") return;
   if (!devMode) return;
 
   if (devForceProfile === null) devForceProfile = 'EDGE';
@@ -3247,10 +4246,8 @@ document.getElementById('devProfileBtn').addEventListener('click', () => {
 
 
 document.getElementById('devShapeBtn').addEventListener('click', () => {
-
-
+  if (!window.CURRENT_USER || window.CURRENT_USER.role !== "developer") return;
   if (!devMode) return;
-
   if (isMorphing) return;
 
   const now = performance.now();
@@ -3261,8 +4258,9 @@ document.getElementById('devShapeBtn').addEventListener('click', () => {
 
 
 document.getElementById('devEditBtn').addEventListener('click', () => {
-  if (!devMode) return;
 
+  if (!window.CURRENT_USER || window.CURRENT_USER.role !== "developer") return;
+  if (!devMode) return;
   if (currentMode === APP_MODE.VIEW) {
     enterEditMode();
   } else {
@@ -3272,6 +4270,8 @@ document.getElementById('devEditBtn').addEventListener('click', () => {
 
 
 document.getElementById('devGenerateBtn').addEventListener('click', () => {
+
+  if (!window.CURRENT_USER || window.CURRENT_USER.role !== "developer") return;
   if (!devMode) return;
   if (currentMode !== APP_MODE.EDIT) return;
   if (currentPath.length < 10) return;
@@ -3297,110 +4297,43 @@ document.addEventListener('fullscreenchange', () => {
   }
 });
 
-function getAvatarUrl(user) {
-  let style;
-
-  if (user.gender === "male") {
-    style = "personas";
-  } else if (user.gender === "female") {
-    style = "lorelei";
-  } else {
-    style = "adventurer";
-  }
-
-  return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(user.avatarSeed || user.username)}`;
-}
-
-
-async function loadProfiles() {
-  const res = await fetch(`${window.BACKEND_URL}/api/users`);
-  const users = await res.json();
-
-  const rail = document.getElementById("profiles");
-  rail.innerHTML = "";
-
-  users.forEach((u) => {
-    const item = document.createElement("div");
-    item.className = "profile-item";
-
-    const avatar = getAvatarUrl(u);
-
-    item.innerHTML = `
-      <div class="profile-avatar">
-        <img src="${avatar}">
-      </div>
-      <div class="profile-name">${u.username.toUpperCase()}</div>
-    `;
-
-    item.onclick = (e) => selectProfile(u, item, e);
-    rail.appendChild(item);
-  });
-
-  // ADD PROFILE
-  const add = document.createElement("div");
-  add.className = "profile-item add";
-  add.innerHTML = `
-    <div class="profile-avatar"></div>
-    <div class="profile-name">NEW</div>
-  `;
-  add.onclick = () => {
-  document.getElementById("createProfileModal").classList.remove("hidden");
-  };
-
-  rail.appendChild(add);
-}
-
-
-function selectProfile(user, el, e) {
-  document.querySelectorAll(".profile-item")
-    .forEach(p => p.classList.remove("selected"));
-
-  el.classList.add("selected");
-  window.CURRENT_USER = user;
-
-  // IMPORTANT: use the click event as the user gesture
-  const screen = document.getElementById("profileScreen");
-  screen.style.opacity = "0";
-  screen.style.pointerEvents = "none";
-
-  // veil for cinematic continuity
-  const veil = document.getElementById("transitionVeil");
-  veil.classList.add("show");
-
-  setTimeout(() => {
-    screen.remove();
-    startMainExperience(e, true);
-  }, 900);
-
-  setTimeout(() => {
-    veil.classList.remove("show");
-  }, 5200); // fades away after welcome + visuals ready
-
-
-}
-
-async function createProfile(name, gender) {
-  const res = await fetch(`${window.BACKEND_URL}/api/users`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: name,
-      gender: gender
-    })
-  });
-
-  if (!res.ok) {
-    const err = await res.json();
-    alert(err.error || "Failed to create profile");
-    return;
-  }
-
-  await loadProfiles();
-}
 
 const modal = document.getElementById("createProfileModal");
+
+const authTabs = document.querySelectorAll(".auth-tab");
+const registerExtras = document.getElementById("registerExtras");
+const authSubmitBtn = document.getElementById("authSubmitBtn");
+
+let authMode = "login";
+
+// Default state = login
+registerExtras.classList.add("hidden");
+authSubmitBtn.textContent = "Login";
+
+authTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+
+    authTabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+
+    authMode = tab.dataset.mode;
+
+    if (authMode === "login") {
+  registerExtras.classList.remove("visible");
+  registerExtras.classList.add("hidden");
+  authSubmitBtn.textContent = "Login";
+} else {
+  registerExtras.classList.remove("hidden");
+  registerExtras.classList.add("visible");
+  authSubmitBtn.textContent = "Register";
+}
+
+  });
+});
+
+
 const vibeGroup = document.getElementById("vibeGroup");
-const createBtn = document.getElementById("createProfileBtn");
+const createBtn = document.getElementById("authSubmitBtn");
 
 vibeGroup.addEventListener("click", (e) => {
   const btn = e.target.closest(".pill");
@@ -3433,65 +4366,386 @@ vibeGroup.addEventListener("click", (e) => {
 });
 
 
-document.getElementById("cancelProfileBtn").onclick = () => {
-  modal.classList.add("hidden");
-};
+authSubmitBtn.addEventListener("click", async (e) => {
 
-document.getElementById("createProfileBtn").onclick = async () => {
+  e.preventDefault();        // ✅ STOP FORM SUBMIT
+  e.stopPropagation();       // ✅ EXTRA SAFETY
+
+
   const name = document.getElementById("newProfileName").value.trim();
-  const gender = document.getElementById("newProfileGender").value;
-  const vibe = selectedVibe;
+  const password = document.getElementById("newProfilePassword").value.trim();
 
-
-  if (!name) {
-    alert("Name required");
+  if (!name || !password) {
+    alert("Username and password required");
     return;
   }
 
-  const res = await fetch(`${window.BACKEND_URL}/api/users`, {
+  if (authMode === "register") {
+
+    const gender = document.getElementById("newProfileGender").value;
+
+    const res = await fetch(`${window.BACKEND_URL}/api/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+      username: name, 
+      password, 
+      gender,
+      vibe: selectedVibe
+})
+    });
+
+    if (!res.ok) {
+      alert("Registration failed");
+      return;
+    }
+  }
+
+  // login flow (shared)
+  const loginRes = await fetch(`${window.BACKEND_URL}/api/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: name,
-      gender,
-      vibe
-    })
+    body: JSON.stringify({ username: name, password })
   });
 
-  if (!res.ok) {
-    alert("Failed to create profile");
+  if (!loginRes.ok) {
+    alert("Invalid credentials");
     return;
   }
 
-  modal.classList.add("hidden");
-  document.getElementById("newProfileName").value = "";
-  loadProfiles();
-};
+  const loginData = await loginRes.json();
+  localStorage.setItem("token", loginData.token);
+
+  const meRes = await fetch(`${window.BACKEND_URL}/api/me`, {
+    headers: { Authorization: `Bearer ${loginData.token}` }
+  });
+
+  const user = await meRes.json();
+  
+  window.CURRENT_USER = user;
+
+// CLEAR INPUT FIELDS
+document.getElementById("newProfileName").value = "";
+document.getElementById("newProfilePassword").value = "";
+
+modal.classList.add("hidden");
+
+// 🔳 ENTER FULLSCREEN IMMEDIATELY (inside user gesture)
+
+window.ACTIVE_VIBE = user.vibe || selectedVibe || "calm";
+
+const transition = document.getElementById("loginTransition");
+
+// hide modal
+modal.classList.add("hidden");
+
+// activate cinematic layer
+transition.classList.remove("hidden");
+transition.classList.add("active");
+
+// delay universe start
+});
 
 
-loadProfiles();
+// ================= DEV ADMIN CONTROLS =================
+
+const devAdminToggle = document.getElementById("devAdminToggle");
+const devMorph = document.getElementById("devMorph");
+const devGlow = document.getElementById("devGlow");
+const devMotion = document.getElementById("devMotion");
+const devBreathe = document.getElementById("devBreathe");
+const devMorphVal = document.getElementById("devMorphVal");
+const devGlowVal = document.getElementById("devGlowVal");
+const devMotionVal = document.getElementById("devMotionVal");
+const devBreatheVal = document.getElementById("devBreatheVal");
+
+
+function syncDevSliders() {
+  if (!window.CURRENT_USER) return;
+
+  const morph = window.CURRENT_USER.customMorphSpeed ?? 1;
+  const glow = window.CURRENT_USER.customGlow ?? 1;
+  const motion = window.CURRENT_USER.customMotionDamp ?? 1;
+  const breathe = window.CURRENT_USER.customBreatheSpeed ?? 1;
+
+  if (devAdminToggle)
+  devAdminToggle.checked = false;
+
+  if (devMorph) {
+    devMorph.value = morph;
+    if (devMorphVal) devMorphVal.textContent = morph.toFixed(2);
+  }
+
+  if (devGlow) {
+    devGlow.value = glow;
+    if (devGlowVal) devGlowVal.textContent = glow.toFixed(2);
+  }
+
+  if (devMotion) {
+    devMotion.value = motion;
+    if (devMotionVal) devMotionVal.textContent = motion.toFixed(2);
+  }
+
+  if (devBreathe) {
+    devBreathe.value = breathe;
+    if (devBreatheVal) devBreatheVal.textContent = breathe.toFixed(2);
+  }
+}
+
+
+devAdminToggle.addEventListener("change", () => {
+  // purely local toggle now
+  applyVibe(window.ACTIVE_VIBE);
+});
+
+
+devMorph.addEventListener("input", async () => {
+
+  const value = parseFloat(devMorph.value);
+  devMorphVal.textContent = value.toFixed(2);
+
+  window.CURRENT_USER.customMorphSpeed = value;
+  applyVibe(window.ACTIVE_VIBE);
+});
+
+
+
+devGlow.addEventListener("input", async () => {
+
+  const value = parseFloat(devGlow.value);
+  devGlowVal.textContent = value.toFixed(2);
+
+  window.CURRENT_USER.customGlow = value;
+  applyVibe(window.ACTIVE_VIBE);
+});
+
+
+devMotion.addEventListener("input", async () => {
+
+  const value = parseFloat(devMotion.value);
+  devMotionVal.textContent = value.toFixed(2);
+
+  window.CURRENT_USER.customMotionDamp = value;
+  applyVibe(window.ACTIVE_VIBE);
+});
+
+
+devBreathe.addEventListener("input", async () => {
+
+  const value = parseFloat(devBreathe.value);
+  devBreatheVal.textContent = value.toFixed(2);
+
+  window.CURRENT_USER.customBreatheSpeed = value;
+  applyVibe(window.ACTIVE_VIBE);
+});
+
+
+document.getElementById("devResetAdmin").addEventListener("click", async () => {
+
+  delete window.CURRENT_USER.customMorphSpeed;
+  delete window.CURRENT_USER.customGlow;
+  delete window.CURRENT_USER.customMotionDamp;
+  delete window.CURRENT_USER.customBreatheSpeed;
+
+  applyVibe(window.ACTIVE_VIBE);
+
+  if (devMode) {
+    syncDevSliders();
+  }
+});
+
+
+//Vibe selector Dev- Control
+document.querySelectorAll(".devMoodBtn").forEach(btn => {
+
+  btn.addEventListener("click", async () => {
+
+    if (!window.CURRENT_USER || window.CURRENT_USER.role !== "developer") return;
+
+    const newVibe = btn.dataset.vibe;
+
+    // Apply immediately
+    window.ACTIVE_VIBE = newVibe;
+    applyVibe(newVibe);
+
+    // Persist to backend
+    try {
+      await fetch(`${window.BACKEND_URL}/api/update-vibe`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ vibe: newVibe })
+      });
+
+      console.log("Developer vibe updated:", newVibe);
+
+    } catch (err) {
+      console.error("Failed to update vibe:", err);
+    }
+
+  });
+
+});
+
 
 document.addEventListener('keydown', (e) => {
   // Alt + `
   if (e.altKey && e.code === 'Backquote') {
-    devMode = !devMode;
 
-    const panel = document.getElementById('devPanel');
-    panel.style.display = devMode ? 'block' : 'none';
-
-    console.log('[DEV MODE]', devMode ? 'ENABLED' : 'DISABLED');
+  if (!window.CURRENT_USER || window.CURRENT_USER.role !== "developer") {
+    console.warn("Developer access required");
+    return;
   }
 
-  if (e.key.toLowerCase() === "e") {
-  if (currentMode === APP_MODE.EDIT) {
-    exitEditMode();
-  } else {
-    enterEditMode();
-  }
+  devMode = !devMode;
+
+  const panel = document.getElementById('devPanel');
+  panel.style.display = devMode ? 'block' : 'none';
+
+  console.log('[DEV MODE]', devMode ? 'ENABLED' : 'DISABLED');
 }
 
 });
 
+
+
+
+const settingsTrigger = document.getElementById("settingsTrigger");
+
+/* Mouse movement reveals icon */
+let triggerTimeout;
+
+document.addEventListener("mousemove", () => {
+
+  settingsTrigger.classList.add("visible");
+
+  clearTimeout(triggerTimeout);
+  triggerTimeout = setTimeout(() => {
+    settingsTrigger.classList.remove("visible");
+  }, 1500);
+});
+
+/* Touch devices */
+document.addEventListener("touchstart", () => {
+  settingsTrigger.classList.add("visible");
+});
+
+/* Toggle panel */
+settingsTrigger.addEventListener("click", () => {
+  userPanel.classList.toggle("show");
+});
+
+
+/* ================= USER PANEL LOGIC (FIXED) ================= */
+
+const userPanel = document.getElementById("controlPanel");
+const userEditToggle = document.getElementById("userEditToggle");
+const userEditControls = document.getElementById("userEditControls");
+const userGenerateBtn = document.getElementById("userGenerateBtn");
+const userClearBtn = document.getElementById("userClearBtn");
+const userLogoutBtn = document.getElementById("userLogoutBtn");
+
+function updateUserPanel() {
+
+  if (!experienceStarted) {
+    settingsTrigger.style.display = "none";
+    return;
+  }
+
+  settingsTrigger.style.display = "block";
+
+  if (currentMode === APP_MODE.EDIT) {
+    userEditToggle.innerHTML = "✦ Exit Draw";
+  } else {
+    userEditToggle.innerHTML = "✦ Draw Mode";
+  }
+}
+
+userEditToggle.addEventListener("click", () => {
+
+  if (currentMode === APP_MODE.VIEW) {
+    enterEditMode();
+  } else {
+    exitEditMode(false);
+  }
+
+  updateUserPanel();
+});
+
+userGenerateBtn.addEventListener("click", () => {
+
+  console.log("Generate clicked");
+
+  if (currentMode !== APP_MODE.EDIT) {
+    console.log("Blocked: Not in EDIT mode");
+    return;
+  }
+
+  if (currentPath.length < 5) {
+    console.log("Blocked: Path too short", currentPath.length);
+    return;
+  }
+
+  console.log("Calling generateShapeFromPath()");
+  generateShapeFromPath();
+});
+
+userClearBtn.addEventListener("click", () => {
+  if (currentMode !== APP_MODE.EDIT) return;
+
+  currentPath = [];
+  drawEditor();
+});
+
+userLogoutBtn.addEventListener("click", () => {
+  localStorage.removeItem("token");
+  window.CURRENT_USER = null;
+  experienceStarted = false;
+  location.reload();
+});
+
+// Auto restore session
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const token = localStorage.getItem("token");
+
+if (!token) {
+  document.getElementById("createProfileModal").classList.remove("hidden");
+  return;
+}
+
+  const res = await fetch(`${window.BACKEND_URL}/api/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    localStorage.removeItem("token");
+    document.getElementById("createProfileModal").classList.remove("hidden");
+    return;
+  }
+
+  const user = await res.json();
+
+  window.CURRENT_USER = user;
+
+document.getElementById("newProfileName").value = "";
+document.getElementById("newProfilePassword").value = "";
+
+modal.classList.add("hidden");
+
+window.ACTIVE_VIBE = user.vibe || selectedVibe || "calm";
+
+applyVibe(window.ACTIVE_VIBE);
+startMainExperience(null, true);
+handStatusEl.textContent = 'Tap here to enter fullscreen';
+});
+
+document.querySelector(".profile-modal-card")
+  .addEventListener("submit", e => e.preventDefault());
 
 </script>
 </body>
