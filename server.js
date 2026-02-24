@@ -28,6 +28,13 @@ app.use(cors({
 
 app.use(express.json());
 
+// 🚨 Disable caching for all API responses
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
+
+
 // Ensure users.json exists
 if (!fs.existsSync(USERS_FILE)) {
   fs.writeFileSync(USERS_FILE, JSON.stringify([]));
