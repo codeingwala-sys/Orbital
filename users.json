@@ -1,20 +1,25 @@
 [
   {
-    "id": "ADMIN-0001",
-    "username": "ADMIN",
+    "id": "e70c1d5d-d46d-405a-bbc8-53a6a2e87ab9",
+    "username": "Shibalik",
+    "password": "$2b$10$oig6Ggtp9Oiw/qCBSf7D.ea0xq5tCDM0ZmH2KV3PY6OPRU3F6hNfC",
+    "role": "user",
     "gender": "neutral",
-    "avatarSeed": "admin-master",
-    "vibe": "mystic",
-    "isAdmin": true,
-    "createdAt": 1770444529699,
-    "lastActive": 1770878689618
+    "avatarSeed": "Shibalik-neutral",
+    "createdAt": 1771569590061,
+    "lastActive": 1771569590061,
+    "firstLoginCompleted": true
   },
   {
-    "id": "8172e347-15dc-4aa3-a2f7-cd7070021fe0",
-    "username": "shibalik",
-    "gender": "male",
-    "avatarSeed": "shibalik-male",
-    "createdAt": 1770444529699,
-    "lastActive": 1770444529699
+    "id": "DEV-0001",
+    "username": "developer",
+    "password": "$2b$10$r9s/gTFPMl8Upa41hYY0..6.KGuu17YBjzpBdTgoJQMXMUzVo3bbS",
+    "role": "developer",
+    "gender": "neutral",
+    "avatarSeed": "dev-master",
+    "createdAt": 1771579532364,
+    "lastActive": 1771579532364,
+    "lastShape": "infinity",
+    "firstLoginCompleted": true
   }
 ]
