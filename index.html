@@ -1,5 +1,5 @@
-<!-- updated on 13-02-2026 9:54pm -->
-<!-- generate shape updated and gesture added and enter button function added-->
+<!-- updated on 03-03-2026 2:57pm -->
+<!-- Orbital Ai is stabled and chat panel added-->
  <!-- login details can be viewed -->
 <!DOCTYPE html>
 <html lang="en">
@@ -467,7 +467,10 @@ body::before {
   position: fixed;
   top: 12px;
   left: 12px;
-  width: 260px;
+  width: min(260px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 14px;
   font-family: monospace;
   font-size: 12px;
@@ -475,9 +478,12 @@ body::before {
   background: rgba(0, 0, 0, 0.75);
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
-  z-index: 999;
+  z-index: 200;
   display: none;
   pointer-events: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+  box-sizing: border-box;
 }
 
 #devPanel.hidden {
@@ -825,7 +831,7 @@ body::before {
 
 .login-transition.active {
   opacity: 1;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .transition-core {
@@ -873,43 +879,128 @@ body::before {
    UNIFIED SIDE PANEL SYSTEM
    ================================================= */
 
-/* ===== Floating Settings Orb ===== */
-
 .cp-orb {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 20px;
+  right: 20px;
 
-  width: 46px;
-  height: 46px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
 
   border: none;
   cursor: pointer;
   z-index: 200;
-
-  background: linear-gradient(135deg, #ff3cac, #784ba0);
-
-  box-shadow:
-    0 0 30px rgba(255,60,200,0.6),
-    0 10px 30px rgba(0,0,0,0.5);
+  background: transparent;
 
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
 
+/* Hidden by default — only shows when AI is active */
   opacity: 0;
-  transition: all 0.3s ease;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.3s ease;
 }
 
-.cp-orb.visible {
-  opacity: 1;
+.cp-orb.orb-active {
+  opacity: 0.55;
+  pointer-events: auto;
 }
 
 .cp-orb:hover {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
+/* 3D sphere face */
+.cp-orb .orb-face {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+
+  /* Deep space layered background — gives 3D sphere depth */
+  background:
+    radial-gradient(circle at 35% 32%, rgba(255,255,255,0.2) 0%, transparent 40%),
+    radial-gradient(circle at 65% 70%, rgba(0,200,180,0.2) 0%, transparent 45%),
+    radial-gradient(circle at 75% 25%, rgba(220,60,180,0.25) 0%, transparent 40%),
+    radial-gradient(circle at 30% 70%, rgba(100,40,220,0.35) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, #1a0830 20%, #060010 100%);
+
+  /* Chrome ring like Siri's outer edge */
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.1),
+    0 0 0 2.5px rgba(155,77,255,0.25),
+    0 4px 18px rgba(0,0,0,0.9),
+    0 0 35px rgba(155,77,255,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 -2px 8px rgba(0,0,0,0.7);
+
+  transition: box-shadow 0.5s ease;
+}
+
+/* Glass highlight — top sphere reflection */
+.cp-orb .orb-face::before {
+  content: "";
+  position: absolute;
+  top: 5px; left: 9px;
+  width: 22px; height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 80%);
+  transform: rotate(-25deg);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Bottom depth shadow inside sphere */
+.cp-orb .orb-face::after {
+  content: "";
+  position: absolute;
+  bottom: 3px; left: 50%;
+  transform: translateX(-50%);
+  width: 34px; height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, transparent 80%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* Canvas for ribbons — sits between bg and glass */
+.cp-orb .orb-face canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Listening — purple glow */
+.cp-orb.orb-listening .orb-face {
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.18),
+    0 0 0 2.5px rgba(155,77,255,0.7),
+    0 4px 18px rgba(0,0,0,0.8),
+    0 0 50px rgba(155,77,255,0.5),
+    0 0 85px rgba(155,77,255,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    inset 0 -2px 8px rgba(0,0,0,0.6);
+}
+
+/* Speaking — pink + teal glow like Siri responding */
+.cp-orb.orb-speaking .orb-face {
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.18),
+    0 0 0 2.5px rgba(255,110,216,0.7),
+    0 4px 18px rgba(0,0,0,0.8),
+    0 0 50px rgba(255,110,216,0.45),
+    0 0 85px rgba(0,200,180,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    inset 0 -2px 8px rgba(0,0,0,0.6);
+}
 /* ===== Control Panel ===== */
 
 .cp-panel {
@@ -1079,14 +1170,7 @@ body.edit-mode #userEditControls {
 }
 
 .orb-core {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #9b4dff, #ff6fd8);
-  display: block;
-  margin: auto;
-  margin-top: 19px;
-  box-shadow: 0 0 12px #9b4dff;
+  display: none; /* canvas ribbons + white core glow handle everything */
 }
 
 
@@ -1136,19 +1220,197 @@ body.edit-mode #userEditControls {
   transition: transform 0.4s ease;
 }
 
+
+/* USER SPEAKING - Organic Green */
+body.user-speaking .particle {
+  background: linear-gradient(45deg, #00ffcc, #00ffaa);
+  transform: scale(1.3);
+  filter: blur(2px);
+}
+
+/* AI SPEAKING - Controlled Blue */
+body.ai-speaking .particle {
+  background: linear-gradient(45deg, #00bfff, #007bff);
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(0, 150, 255, 0.8);
+}
+
+/* ACTIVATION BOOM */
+body.orbital-activated::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle,
+      rgba(0,255,255,0.6) 0%,
+      rgba(0,150,255,0.4) 40%,
+      transparent 70%);
+  animation: energyBoom 1.2s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes energyBoom {
+  0%   { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+
+/* ===== DEV CHAT PANEL ===== */
+#dev-chat-panel {
+  position: fixed;
+  top: 12px;
+  left: -100vw;
+  width: clamp(300px, 35vw, 440px);
+  height: calc(100vh - 24px);
+  max-height: calc(100vh - 24px);
+  box-sizing: border-box;
+  transition: left 0.35s cubic-bezier(.4,0,.2,1);
+
+  /* Black glass — dark but see-through like tinted glass */
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(0px) brightness(0.35);
+  -webkit-backdrop-filter: blur(0px) brightness(0.35);
+
+  /* Fully rounded on all corners */
+  border-radius: 16px;
+
+  /* White neon strip border — all 4 sides */
+  border: 2px solid rgba(255, 255, 255, 0.9);
+
+  /* Outer glow — tight strip, not a spread */
+  box-shadow:
+    0 0 6px  2px rgba(255, 255, 255, 0.85),
+    0 0 18px 4px rgba(255, 255, 255, 0.4),
+    0 0 40px 6px rgba(255, 255, 255, 0.15),
+    inset 0 0 8px rgba(255, 255, 255, 0.06);
+
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, sans-serif;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+#dev-chat-panel.open {
+  left: 290px;
+}
+
+#dev-chat-header {
+  padding: 20px 18px 15px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  text-align: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+#dev-chat-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+}
+
+#dev-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+#dev-chat-messages::-webkit-scrollbar { width: 3px; }
+#dev-chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 3px;
+}
+
+.chat-bubble {
+  max-width: 83%;
+  padding: 11px 15px;
+  font-size: 13px;
+  line-height: 1.6;
+  word-wrap: break-word;
+  border-radius: 14px;
+  animation: bubbleIn 0.2s cubic-bezier(.4,0,.2,1);
+  will-change: opacity, transform;
+}
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.chat-user {
+  align-self: flex-end;
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-bottom-right-radius: 3px;
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.13),
+    0 0 24px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.chat-orbital {
+  align-self: flex-start;
+  background: rgba(110, 50, 210, 0.16);
+  color: rgba(225, 210, 255, 0.88);
+  border: 1px solid rgba(160, 100, 255, 0.42);
+  border-bottom-left-radius: 3px;
+  box-shadow:
+    0 0 12px rgba(140, 80, 255, 0.28),
+    0 0 28px rgba(140, 80, 255, 0.1),
+    inset 0 1px 0 rgba(190, 150, 255, 0.1);
+}
+
+
+/* ================================================================
+     MUSIC CINEMA MODE — all UI fades when music plays + user is idle
+     Class .mm-cinema toggled by JS. Only particles remain visible.
+     ================================================================ */
+  body.mm-cinema #controlPanel,
+  body.mm-cinema #devPanel,
+  body.mm-cinema #handStatus,
+  body.mm-cinema #skeleton,
+  body.mm-cinema #gestureHint,
+  body.mm-cinema #dev-chat-panel,
+  body.mm-cinema .cp-orb,
+  body.mm-cinema .orb-core,
+  body.mm-cinema .transition-core {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 1.8s ease !important;
+  }
+  body:not(.mm-cinema) #controlPanel,
+  body:not(.mm-cinema) #devPanel,
+  body:not(.mm-cinema) #handStatus,
+  body:not(.mm-cinema) #skeleton,
+  body:not(.mm-cinema) #gestureHint,
+  body:not(.mm-cinema) #dev-chat-panel,
+  body:not(.mm-cinema) .cp-orb,
+  body:not(.mm-cinema) .orb-core,
+  body:not(.mm-cinema) .transition-core {
+    transition: opacity 0.9s ease !important;
+  }
+
   </style>
 </head>
 <body>
+<div id="mm-tint" style="position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0;transition:opacity 3s ease;background:radial-gradient(circle at center, rgba(155,77,255,0.18), transparent 65%);"></div>
 
-
-<div id="loader">
-  <video id="loaderVideo"
-         src="loader2.mp4"
-         autoplay
-         muted
-         playsinline
-         loop></video>
-</div>
+<div id="loader"></div>
 
 <div id="edgeLight"></div>
 
@@ -1327,16 +1589,15 @@ style="
   <div>DarkState: <span id="dev-dark">–</span></div>
   </div>
 
+    <!-- ===== DEV CHAT PANEL ===== -->
+  <div id="dev-chat-panel">
+    <div id="dev-chat-header">Orbital Chat</div>
+    <div id="dev-chat-messages"></div>
+  </div>
+
 </div>
 
-<div id="intro">
-  <video id="introVideo"
-         src="intro.mp4"
-         autoplay
-         muted
-         playsinline
-         loop></video>
-</div>
+<div id="intro"></div>
 
 <div id="welcomeLayer">
   <div id="welcomeText">
@@ -1378,8 +1639,8 @@ Move your hand to rotate · Open palm to scale · Two hands to switch shapes
     <div class="auth-header">
       <div class="auth-title">Orbital Access</div>
       <div class="auth-tabs">
-        <button class="auth-tab" data-mode="register">Register</button>
-        <button class="auth-tab active" data-mode="login">Login</button>
+        <button type="button" class="auth-tab" data-mode="register">Register</button>
+        <button type="button" class="auth-tab active" data-mode="login">Login</button>
       </div>
     </form>
 
@@ -1418,10 +1679,10 @@ Move your hand to rotate · Open palm to scale · Two hands to switch shapes
         <label>
           Vibe
           <div class="pill-group" id="vibeGroup">
-            <button class="pill active" data-vibe="calm">Calm</button>
-            <button class="pill" data-vibe="focused">Focused</button>
-            <button class="pill" data-vibe="energetic">Energetic</button>
-            <button class="pill" data-vibe="mystic">Mystic</button>
+            <button type="button" class="pill active" data-vibe="calm">Calm</button>
+            <button type="button" class="pill" data-vibe="focused">Focused</button>
+            <button type="button" class="pill" data-vibe="energetic">Energetic</button>
+            <button type="button" class="pill" data-vibe="mystic">Mystic</button>
           </div>
         </label>
 
@@ -1443,7 +1704,10 @@ Move your hand to rotate · Open palm to scale · Two hands to switch shapes
 <!-- ================= USER CONTROL CONSOLE ================= -->
 
 <button id="settingsTrigger" class="cp-orb">
-  <span class="orb-core"></span>
+  <div class="orb-face">
+    <canvas id="orbWaveCanvas" width="54" height="54"></canvas>
+    <span class="orb-core"></span>
+  </div>
 </button>
 
 <!-- ================= CONTROL PANEL ================= -->
@@ -1456,8 +1720,16 @@ Move your hand to rotate · Open palm to scale · Two hands to switch shapes
   <div class="cp-card">
 
     <button id="userEditToggle" class="cp-btn cp-primary">
-  ✦ Draw Mode
-</button>
+    ✦ Draw Mode
+    </button>
+
+    <button id="musicModeBtn" class="cp-btn" style="
+      background: linear-gradient(135deg, #7b2fff, #ff3cac);
+      box-shadow: 0 6px 20px rgba(155,50,255,0.4);
+      margin-top: 6px;
+    ">
+      ♫ Music Mode
+    </button>
 
     <div id="userEditControls" class="cp-edit-group">
 
@@ -1494,11 +1766,14 @@ Move your hand to rotate · Open palm to scale · Two hands to switch shapes
 
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="orbital-intro.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <script src="config.js"></script>
+<script src="musicMode.js"></script>
 
-<script>
+<script type="module">
+  import { initOrbitalVoice, getUserAudioEnergy } from "./orbitalVoice.js";
 
 function assertRuntimeUnlocked() {
   return !runtimeLocked;
@@ -1506,13 +1781,7 @@ function assertRuntimeUnlocked() {
 
 
 function showIntro() {
-  const intro = document.getElementById('intro');
-  const video = document.getElementById('introVideo');
-
-  intro.style.display = 'block';
-  video.pause();
-  video.currentTime = 0;
-  video.play().catch(() => {});
+  // no-op: 3D intro now runs as the loader (orbital-intro.js)
 }
 
 function showWelcomeMessage(username) {
@@ -1574,11 +1843,14 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 130;
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.body.appendChild(renderer.domElement);
-renderer.setClearColor(0x000000, 1);
+renderer.domElement.style.position = "fixed";
+renderer.domElement.style.top = "0";
+renderer.domElement.style.left = "0";
+renderer.setClearColor(0x000000, 0);
 
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
@@ -1683,12 +1955,19 @@ const BRAKE_POWER = 0.08;
 
 
 const SHAPES = ['sphere', 'infinity', 'heart', 'saturn', 'spiral', 'butterfly'];
+window.SHAPES = SHAPES;
 
 
 //================== Global Variables ================
 let experienceStarted = false;
 let runtimeLocked = false;
 let currentShapeIndex = 0;
+// Expose for cross-module access (orbitalVoice.js)
+Object.defineProperty(window, 'currentShapeIndex', {
+  get: () => currentShapeIndex,
+  set: (v) => { currentShapeIndex = v; },
+  configurable: true
+});
 let previousShapeIndex = 0;
 let lastTwoHandDistance = null;
 let twoHandCooldown = false;
@@ -1809,6 +2088,8 @@ const DUAL_HOLD_TIME = 900;        // ms
 const DUAL_MOVE_THRESHOLD = 0.0025;
 
 
+let audioPulsePhase = 0;
+let sleepCollapse = 0;
 
 // ================= APP MODE SYSTEM =================
 const APP_MODE = {
@@ -1973,6 +2254,7 @@ let galaxyPhase = null;
 
 const geometry = new THREE.BufferGeometry();
 const positions = new Float32Array(MAX_PARTICLES * 3);
+const baseFramePositions = new Float32Array(MAX_PARTICLES * 3);
 const targetPositions = new Float32Array(MAX_PARTICLES * 3);
 const normals = new Float32Array(MAX_PARTICLES * 3);
 const baseColor = new THREE.Color('#6a0dad');
@@ -2492,6 +2774,20 @@ const material = new THREE.ShaderMaterial({
 
 });
 
+window.__orbitalMaterial__ = material;
+window.__orbitalGeometry__ = geometry;
+window.__targetPositions__ = targetPositions;
+window.__effectiveParticleCount__ = effectiveParticleCount;
+
+// ===== SPEECH COLOR STATE (SAFE LAYER) =====
+let speechUserColor = new THREE.Color("#00ffaa");   // user = green
+let speechAiColor   = new THREE.Color("#00aaff");   // AI = blue
+
+let speechMidBase = material.uniforms.uMidColor.value.clone();
+let speechHighlightBase = material.uniforms.uHighlightColor.value.clone();
+
+
+
 texture.magFilter = THREE.NearestFilter;
 texture.generateMipmaps = false;
 
@@ -2685,6 +2981,21 @@ hands.onResults((results) => {
 
   let targetOpacity = 0;
   const now = performance.now();
+
+  // ===== AUDIO ENERGY =====
+  const { energy, bass } = getUserAudioEnergy();
+
+  let aiBoost = document.body.classList.contains("ai-speaking") ? 0.5 : 0;
+
+  const rawEnergy = energy + aiBoost;
+
+// Non-linear smoothing curve
+const totalEnergy = Math.pow(rawEnergy, 1.6);
+
+  // advance vibration phase
+  audioPulsePhase += 0.02 + totalEnergy * 0.15;
+
+
   const statusEl = handStatusEl
   skelCtx.clearRect(0, 0, skelCanvas.width, skelCanvas.height);
 
@@ -3268,6 +3579,20 @@ function exitEditMode(revert = true) {
     isMorphing = true;
     normalsDirty = true;
     customShapeActive = false;
+
+    // Tell musicMode to refresh its savedShape to the new targetPositions.
+    // Without this, musicMode keeps blending tp toward the drawn shape coords
+    // and the revert morph never reaches the original shape.
+    if (window.musicModeOnShapeSwitch) {
+      window.musicModeOnShapeSwitch();
+    } else if (window.__targetPositions__ && window.musicModeActive) {
+      // Fallback: directly update savedShape reference
+      const tp = window.__targetPositions__;
+      const cnt = window.__PARTICLE_PROFILES__?.FULL || 20000;
+      if (window._mmSavedShapeRef) {
+        window._mmSavedShapeRef.set(tp.slice(0, cnt * 3));
+      }
+    }
   }
 
   updateUserPanel();
@@ -3445,6 +3770,14 @@ targetPositions[i * 3 + 2] =
 }
 
 
+  // Fill remaining target positions (beyond the drawn count) with zero
+  // so the morph loop completes cleanly and isMorphing goes false.
+  for (let i = count; i < effectiveParticleCount; i++) {
+    targetPositions[i * 3]     = 0;
+    targetPositions[i * 3 + 1] = 0;
+    targetPositions[i * 3 + 2] = 0;
+  }
+
   isMorphing = true;
   normalsDirty = true;
   customShapeActive = true;   // 🔒 prevent saturn/galaxy overrides
@@ -3513,6 +3846,10 @@ material.uniforms.uHighlightColor.value.copy(highlightColor);
 
 }
 
+// ── Expose shape/vibe controls globally for orbitalVoice.js cross-module access ──
+window.switchShape = switchShape;
+window.applyVibe   = applyVibe;
+
 
 function animate() {
   if (currentTier === SIMULATION_TIER.IDLE && lastHandCount === 0) {
@@ -3528,7 +3865,10 @@ function animate() {
 }
 
 
-  if (currentMode === APP_MODE.EDIT && !isMorphing) {
+  // EDIT mode: only early-return when canvas is blank (no shape yet)
+  // Once a shape is drawn (customShapeActive=true), run the full loop
+  // so hand gestures can rotate/scale the drawn shape normally.
+  if (currentMode === APP_MODE.EDIT && !isMorphing && !customShapeActive) {
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
   return;
@@ -3536,6 +3876,9 @@ function animate() {
 
 
   const now = performance.now();
+  // Expose draw-mode state so musicMode.js can read it
+  window.isMorphing       = isMorphing;
+  window.customShapeActive = customShapeActive;
   material.uniforms.uTime.value = now * 0.001;
   material.uniforms.uGlowBoost.value = vibeSettings.glowBoost;
 
@@ -3578,13 +3921,13 @@ if (window.__PARTICLE_PROFILES__) {
       : window.__PARTICLE_PROFILES__.FULL;
   }
 
-  if (!isMorphing && effectiveParticleCount !== desired) {
+if (!isMorphing && effectiveParticleCount !== desired) {
   effectiveParticleCount = desired;
   geometry.setDrawRange(0, effectiveParticleCount);
+  window.__effectiveParticleCount__ = effectiveParticleCount;
 }
 
 }
-
 
 
 if (devMode && now - lastGraphUpdate > GRAPH_UPDATE_INTERVAL) {
@@ -3648,12 +3991,11 @@ const uiPulse =
     Math.abs(handOpenness)
   );
 
-handStatusEl.style.transform =
-  `translateX(-50%) scale(${1 + uiPulse * 0.08})`;
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+const _newTransform = `translateX(-50%) scale(${(1 + uiPulse * 0.08).toFixed(4)})`;
+if (handStatusEl._lastTransform !== _newTransform) {
+  handStatusEl.style.transform = _newTransform;
+  handStatusEl._lastTransform = _newTransform;
+}
 
 
   // ---------- LOCK RING VISUAL ----------
@@ -3840,10 +4182,6 @@ particles.position.z += (depthFactor - particles.position.z) * 0.22;
   Math.abs(rawOpenness - handOpenness) < 0.003;
 
 
-colorUpdateCooldown -= perfLevel < 1 ? 2 : 1;
-
-colorFrameSkip++;
-
 if (isMorphing) {
 
   let done = true;
@@ -3881,7 +4219,9 @@ if (isMorphing) {
 
 
  // ---- Cinematic Spiral Animation ----
-if (SHAPES[currentShapeIndex] === 'spiral' && !isMorphing && spiralBase) {
+if (!window._spiralFrame) window._spiralFrame = 0;
+window._spiralFrame++;
+if (SHAPES[currentShapeIndex] === 'spiral' && !isMorphing && spiralBase && (perfLevel >= 1.0 || window._spiralFrame % 2 === 0)) {
 
   const pos = geometry.attributes.position.array;
   const norm = geometry.attributes.normal.array;
@@ -3958,8 +4298,6 @@ if (SHAPES[currentShapeIndex] === 'spiral') {
   camera.position.y = Math.cos(t * 0.7) * 6;
   camera.lookAt(0, 0, 0);
 }
-
-
 
   // -------- SATURN RING ORBIT MOTION --------
   if (
@@ -4058,9 +4396,233 @@ posArr[idx * 3 + 2] = Math.sin(a) * r;
 
 }
 
-
   requestAnimationFrame(animate);
-  renderer.render(scene, camera);
+
+ // ===== AUDIO REACTIVE PARTICLE VIBRATION =====
+const _musicActive = window.musicModeActive === true;
+let _energy, _bass, _mid, _high, _beat, _beatPulse;
+
+if (_musicActive && window.__musicEnergy__) {
+  const me = window.__musicEnergy__;
+  _bass = me.bass; _mid = me.mid; _high = me.high;
+  _beat = me.beat; _beatPulse = me.beatPulse || 0;
+  _energy = me.total;
+} else {
+  const ae = getUserAudioEnergy();
+  const aiBoost = document.body.classList.contains("ai-speaking") ? 0.3 : 0;
+  _energy = ae.energy + aiBoost;
+  _bass = ae.bass;
+  _mid = 0; _high = 0; _beat = false; _beatPulse = 0;
+}
+
+const rawEnergy   = _energy;
+const totalEnergy = Math.pow(rawEnergy, 1.7);
+
+const shouldVibrate = _musicActive
+  ? totalEnergy > 0.005
+  : (window.orbitalActive && totalEnergy > 0.01);
+
+if (!_musicActive && shouldVibrate && !isMorphing) {
+  const pos = geometry.attributes.position.array;
+  audioPulsePhase += _musicActive ? (0.012 + _bass * 0.04) : 0.015;
+
+  if (_musicActive) {
+
+    // ── Amplitude per band — small, soothing, not cheap ──
+    // Bass: max 3 units (was 8 — cut to 3, slow sine)
+    // Mid:  max 2 units lateral flow
+    // High: max 1 unit sparkle
+    // Beat: max 2 units directional only (not radial expand)
+    const bassAmp = _bass * 3.0;
+    const midAmp  = _mid  * 2.0;
+    const highAmp = _high * 1.0;
+    const beatAmp = _beatPulse * 2.0;
+
+    for (let i = 0; i < effectiveParticleCount; i++) {
+      const i3 = i * 3;
+      const bx = targetPositions[i3];
+      const by = targetPositions[i3 + 1];
+      const bz = targetPositions[i3 + 2];
+
+      // Determine dominant axis of this particle's rest position
+      const ax = Math.abs(bx), ay = Math.abs(by), az = Math.abs(bz);
+
+      const phase = audioPulsePhase + i * 0.014;
+
+      if (ax >= ay && ax >= az) {
+        // ── X-dominant particle → reacts to BASS ──
+        // Only the X component moves, slow sine wave
+        const d = Math.sign(bx) * Math.sin(phase * 0.5) * bassAmp
+                + Math.sign(bx) * beatAmp * 0.6;
+        pos[i3]     = bx + d;
+        pos[i3 + 1] = by;
+        pos[i3 + 2] = bz;
+
+      } else if (ay >= ax && ay >= az) {
+        // ── Y-dominant particle → reacts to MIDS ──
+        // Y flows up/down with melody, small lateral X drift
+        const dY = Math.sin(phase * 1.4 + by * 0.03) * midAmp;
+        const dX = Math.cos(phase * 1.1 + bx * 0.02) * midAmp * 0.4;
+        pos[i3]     = bx + dX;
+        pos[i3 + 1] = by + dY;
+        pos[i3 + 2] = bz;
+
+      } else {
+        // ── Z-dominant particle → reacts to HIGHS ──
+        // Z sparkles fast and subtle, tiny Y shimmer
+        const dZ = Math.sin(phase * 4.5 + i * 0.18) * highAmp;
+        const dY = Math.cos(phase * 3.8 + i * 0.12) * highAmp * 0.5;
+        pos[i3]     = bx;
+        pos[i3 + 1] = by + dY;
+        pos[i3 + 2] = bz + dZ;
+      }
+    }
+
+  } else {
+    // Voice mode — original uniform jitter, unchanged
+    const voiceAmp = 2.2 * totalEnergy + _bass * 2.5;
+    for (let i = 0; i < effectiveParticleCount; i++) {
+      const i3 = i * 3;
+      const phase = audioPulsePhase + i * 0.02;
+      const offset = Math.sin(phase) * voiceAmp;
+      pos[i3]     = targetPositions[i3]     + offset * 0.3;
+      pos[i3 + 1] = targetPositions[i3 + 1] + offset * 0.3;
+      pos[i3 + 2] = targetPositions[i3 + 2] + offset * 0.3;
+    }
+  }
+
+  geometry.attributes.position.needsUpdate = true;
+
+} else if (!_musicActive && !isMorphing) {
+  // Only sync positions when something actually changed (orbital active or just stopped vibrating)
+  if (window.orbitalActive || window._lastVoiceVibrating) {
+    const pos = geometry.attributes.position.array;
+    for (let i = 0; i < effectiveParticleCount * 3; i++) {
+      pos[i] = targetPositions[i];
+    }
+    geometry.attributes.position.needsUpdate = true;
+  }
+  window._lastVoiceVibrating = window.orbitalActive;
+}
+
+// ===== MINIMAL SIRI-STYLE SPEECH SHIFT =====
+
+const orbitalActive = window.orbitalActive === true;
+
+const userSpeaking = document.body.classList.contains("user-speaking");
+const aiSpeaking   = document.body.classList.contains("ai-speaking");
+
+// store stable base
+if (!material.__baseMid) {
+  material.__baseMid = material.uniforms.uMidColor.value.clone();
+  material.__baseHighlight = material.uniforms.uHighlightColor.value.clone();
+}
+
+// refresh base when silent and NOT in music mode
+if (!userSpeaking && !aiSpeaking && !_musicActive) {
+  material.__baseMid.copy(material.uniforms.uMidColor.value);
+  material.__baseHighlight.copy(material.uniforms.uHighlightColor.value);
+}
+
+let targetMid = material.__baseMid.clone();
+let targetHighlight = material.__baseHighlight.clone();
+
+if (orbitalActive) {
+
+  const shiftSpeed = performance.now() * 0.0008;
+  const subtleWave = Math.sin(shiftSpeed) * 0.04;
+
+  if (userSpeaking) {
+    // soft green lean
+    targetMid.offsetHSL(0.08, 0.15, subtleWave * 0.2);
+    targetHighlight.offsetHSL(0.08, 0.2, 0.05);
+  }
+
+  else if (aiSpeaking) {
+    // soft blue lean
+    targetMid.offsetHSL(-0.06, 0.12, subtleWave * 0.2);
+    targetHighlight.offsetHSL(-0.06, 0.15, 0.08);
+  }
+}
+
+// ===== reverse boom on sleep =====
+if (!orbitalActive && sleepCollapse > 0.001) {
+
+  sleepCollapse *= 0.90;
+
+  const collapsePulse = sleepCollapse * 0.5;
+
+  material.uniforms.uGlowBoost.value = 1.0 + collapsePulse;
+
+  // force faster return to base during collapse
+  targetMid = material.__baseMid.clone();
+  targetHighlight = material.__baseHighlight.clone();
+}
+
+// smooth blend
+material.uniforms.uMidColor.value.lerp(targetMid, 0.06);
+material.uniforms.uHighlightColor.value.lerp(targetHighlight, 0.06);
+
+renderer.render(scene, camera);
+
+// ================================================================
+//  MUSIC CINEMA MODE
+// ================================================================
+if (typeof window._mmCinema === 'undefined') {
+  window._mmCinema          = false;
+  window._mmCinemaLastInput = performance.now();
+  window._mmBgH = 0; window._mmBgS = 0; window._mmBgL = 0;
+  window._mmGlowExtra = 0;
+
+  document.addEventListener('mousemove', () => {
+    window._mmCinemaLastInput = performance.now();
+    if (window._mmCinema) { window._mmCinema = false; document.body.classList.remove('mm-cinema'); }
+  }, { passive: true });
+  document.addEventListener('mousedown', () => {
+    window._mmCinemaLastInput = performance.now();
+    if (window._mmCinema) { window._mmCinema = false; document.body.classList.remove('mm-cinema'); }
+  }, { passive: true });
+  document.addEventListener('touchstart', () => {
+    window._mmCinemaLastInput = performance.now();
+    if (window._mmCinema) { window._mmCinema = false; document.body.classList.remove('mm-cinema'); }
+  }, { passive: true });
+}
+{
+  const _isMusicMode = window.musicModeActive === true;
+  if (lastHandCount > 0) {
+    window._mmCinemaLastInput = performance.now();
+    if (window._mmCinema) { window._mmCinema = false; document.body.classList.remove('mm-cinema'); }
+  }
+  const _idleMs = performance.now() - window._mmCinemaLastInput;
+  if (_isMusicMode && !window._mmCinema && _idleMs >= 60000) {
+    window._mmCinema = true; document.body.classList.add('mm-cinema');
+  }
+  if (!_isMusicMode && window._mmCinema) {
+    window._mmCinema = false; document.body.classList.remove('mm-cinema');
+  }
+
+  if (!window._mmTint) window._mmTint = document.getElementById('mm-tint');
+  if (window._mmCinema && _isMusicMode) {
+    const me = window.__musicEnergy__ || {};
+    const mmBeat = me.beat||false, mmPulse = me.beatPulse||0, mmTotal = me.total||0;
+    // Target opacity: very low (0.0 to 0.55 max) — just a whisper of purple tint
+    // Pulses slightly on beat but never overpowers particles
+    const targOpacity = Math.min(0.30, mmTotal * 0.18 + mmPulse * 0.14);
+    window._mmTintOpacity = (window._mmTintOpacity || 0);
+    window._mmTintOpacity += (targOpacity - window._mmTintOpacity) * (mmBeat ? 0.15 : 0.03);
+    if (window._mmTint) window._mmTint.style.opacity = window._mmTintOpacity;
+    if (mmBeat) window._mmGlowExtra = Math.min(2.5, window._mmGlowExtra + mmPulse * 1.8);
+    window._mmGlowExtra *= 0.88;
+  } else {
+    window._mmTintOpacity = (window._mmTintOpacity || 0) * 0.94;
+    window._mmGlowExtra = (window._mmGlowExtra || 0) * 0.92;
+    if (window._mmTint) window._mmTint.style.opacity = window._mmTintOpacity;
+  }
+
+  if (window._mmCinema && window._mmGlowExtra > 0.01)
+    material.uniforms.uGlowBoost.value = (material.uniforms.uGlowBoost.value || 1.0) + window._mmGlowExtra;
+}
+
 }
 
 /* =====================================================
@@ -4068,17 +4630,8 @@ posArr[idx * 3 + 2] = Math.sin(a) * r;
    ===================================================== */
   (async function boot() {
   const loader = document.getElementById('loader');
-  const loaderVideo = document.getElementById('loaderVideo');
-
-  // loader loops while system prepares
-  loaderVideo.loop = true;
-  loaderVideoFinished = false;
+  window._introAnimDone = false;
   systemReady = false;
-
-  // fires ONLY after loop is disabled and video ends
-  loaderVideo.addEventListener('ended', () => {
-    loaderVideoFinished = true;
-  });
 
   // ---- GPU benchmark ----
   const benchScene = new THREE.Scene();
@@ -4114,14 +4667,12 @@ posArr[idx * 3 + 2] = Math.sin(a) * r;
 
   console.log('[BOOT] Particle budget:', safeCount);
 
-  // system ready → stop looping, allow current video pass to finish
   systemReady = true;
-  loaderVideo.loop = false;
 
-  // wait for BOTH: system + video finish
+  // wait for BOTH: benchmark done + intro animation done
   await new Promise(resolve => {
     const check = () => {
-      if (systemReady && loaderVideoFinished) {
+      if (systemReady && window._introAnimDone) {
         resolve();
       } else {
         requestAnimationFrame(check);
@@ -4130,9 +4681,8 @@ posArr[idx * 3 + 2] = Math.sin(a) * r;
     check();
   });
 
-  // transition
+  // loader is the intro container — just remove it
   loader.remove();
-  showIntro();
 })();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4211,6 +4761,26 @@ document.getElementById('skeleton').style.display = 'block';
 
     try {
       await startCamera();
+
+      // Initialize Orbital Voice AFTER experience starts
+    initOrbitalVoice({
+  backendUrl: window.BACKEND_URL,
+    
+  onPulse: (active) => {
+    const core = document.querySelector(".transition-core");
+    if (core) {
+      core.style.transform = active ? "scale(1.8)" : "scale(1)";
+      core.style.boxShadow = active
+        ? "0 0 120px #9b4dff, 0 0 200px #ff6fd8"
+        : "0 0 60px #9b4dff";
+    }
+    
+    if (typeof window.setOrbState === "function") {
+      window.setOrbState(active ? "speaking" : (window.orbitalActive ? "listening" : "idle"));
+    }
+  }
+});
+
       // 🔓 FAILSAFE: ensure visuals unlock even if welcome timing fails
 setTimeout(() => {
   if (!visualsReady) {
@@ -4430,22 +5000,33 @@ document.getElementById("newProfilePassword").value = "";
 
 modal.classList.add("hidden");
 
-// 🔳 ENTER FULLSCREEN IMMEDIATELY (inside user gesture)
+modal.classList.add("hidden");
 
 window.ACTIVE_VIBE = user.vibe || selectedVibe || "calm";
+applyVibe(window.ACTIVE_VIBE);
 
 const transition = document.getElementById("loginTransition");
 
-// hide modal
-modal.classList.add("hidden");
-
-// activate cinematic layer
+// show transition
 transition.classList.remove("hidden");
 transition.classList.add("active");
 
-// delay universe start
-});
+// start universe after short cinematic delay
+setTimeout(() => {
 
+  startMainExperience(null, true);
+
+  // hide transition after experience starts
+  setTimeout(() => {
+    transition.classList.remove("active");
+    setTimeout(() => {
+      transition.classList.add("hidden");
+    }, 650);
+  }, 400);
+
+}, 800);
+  
+})
 
 // ================= DEV ADMIN CONTROLS =================
 
@@ -4600,42 +5181,171 @@ document.addEventListener('keydown', (e) => {
   }
 
   devMode = !devMode;
+  window.devModeActive = devMode;
+  if (window.musicModeDevSync) window.musicModeDevSync(devMode);
 
   const panel = document.getElementById('devPanel');
   panel.style.display = devMode ? 'block' : 'none';
 
   console.log('[DEV MODE]', devMode ? 'ENABLED' : 'DISABLED');
+
+  const chat = document.getElementById("dev-chat-panel");
+
+  if (chat) {
+    if (devMode) {
+      chat.style.display = "flex";
+      requestAnimationFrame(() => chat.classList.add("open"));
+    } else {
+      chat.classList.remove("open");
+      setTimeout(() => { if (!devMode) chat.style.display = "none"; }, 350);
+    }
+  }
 }
 
 });
 
 
-
-
 const settingsTrigger = document.getElementById("settingsTrigger");
 
-/* Mouse movement reveals icon */
-let triggerTimeout;
-
-document.addEventListener("mousemove", () => {
-
-  settingsTrigger.classList.add("visible");
-
-  clearTimeout(triggerTimeout);
-  triggerTimeout = setTimeout(() => {
-    settingsTrigger.classList.remove("visible");
-  }, 1500);
-});
-
-/* Touch devices */
-document.addEventListener("touchstart", () => {
-  settingsTrigger.classList.add("visible");
-});
-
-/* Toggle panel */
+/* Toggle panel on click */
 settingsTrigger.addEventListener("click", () => {
   userPanel.classList.toggle("show");
 });
+
+/* Show orb on mouse movement so user can access settings */
+let orbMouseTimeout;
+
+document.addEventListener("mousemove", () => {
+  if (settingsTrigger.style.display === "none") return;
+  settingsTrigger.classList.add("orb-mouse-visible");
+  clearTimeout(orbMouseTimeout);
+  orbMouseTimeout = setTimeout(() => {
+    settingsTrigger.classList.remove("orb-mouse-visible");
+  }, 2000);
+});
+
+document.addEventListener("touchstart", () => {
+  if (settingsTrigger.style.display === "none") return;
+  settingsTrigger.classList.add("orb-mouse-visible");
+  clearTimeout(orbMouseTimeout);
+  orbMouseTimeout = setTimeout(() => {
+    settingsTrigger.classList.remove("orb-mouse-visible");
+  }, 2000);
+});
+
+
+/* ── SIRI-STYLE 3D ORB ANIMATOR ── */
+(function () {
+  const canvas = document.getElementById("orbWaveCanvas");
+  const ctx    = canvas.getContext("2d");
+  const S      = 54;
+  const CX     = S / 2;
+  const CY     = S / 2;
+  const R      = 25;
+
+  let orbState = "idle";
+
+  window.setOrbState = function (state) {
+    orbState = state;
+    settingsTrigger.classList.toggle("orb-active",    state !== "idle");
+    settingsTrigger.classList.toggle("orb-listening", state === "listening");
+    settingsTrigger.classList.toggle("orb-speaking",  state === "speaking");
+  };
+
+  // Three ribbons — purple, pink, teal — like Siri
+  const ribbons = [
+    { tilt: -0.5, speed: 0.50, r: 155, g: 77,  b: 255, alpha: 0.80 },
+    { tilt:  0.7, speed: 0.65, r: 255, g: 80,  b: 200, alpha: 0.70 },
+    { tilt:  1.2, speed: 0.42, r: 0,   g: 210, b: 185, alpha: 0.60 },
+  ];
+
+  function drawRibbon(t, rib, amp) {
+    const phase = t * rib.speed;
+    const pts   = 100;
+    const top   = [];
+    const bot   = [];
+
+    for (let i = 0; i <= pts; i++) {
+      const u    = (i / pts) * Math.PI * 2;
+      // 3D point on sphere surface
+      const warp = 1 + amp * Math.sin(u * 2.5 + phase * 1.4) * 0.28;
+      const x3   = Math.cos(u) * R * warp;
+      const y3   = Math.sin(u + rib.tilt) * R * 0.42 * warp;
+      const z3   = Math.sin(u + phase) * R * 0.3;
+
+      // Perspective depth
+      const depth = 1 + z3 / (R * 2.8);
+      const px    = CX + x3 * depth;
+      const py    = CY + y3 * depth;
+
+      // Ribbon thickness varies with depth + audio
+      const thick = (3.8 + amp * 5) * depth;
+      const nx    = -Math.sin(u) * 0.5;
+      const ny    =  Math.cos(u + rib.tilt) * 0.42 * 0.5;
+      const len   = Math.sqrt(nx * nx + ny * ny) || 1;
+
+      top.push([px + (nx / len) * thick, py + (ny / len) * thick, depth]);
+      bot.push([px - (nx / len) * thick, py - (ny / len) * thick, depth]);
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(top[0][0], top[0][1]);
+    for (let i = 1; i < top.length; i++) ctx.lineTo(top[i][0], top[i][1]);
+    for (let i = bot.length - 1; i >= 0; i--) ctx.lineTo(bot[i][0], bot[i][1]);
+    ctx.closePath();
+
+    // Gradient gives ribbon the shiny 3D look
+    const g = ctx.createLinearGradient(CX - R, CY, CX + R, CY);
+    g.addColorStop(0,   `rgba(${rib.r},${rib.g},${rib.b},0)`);
+    g.addColorStop(0.25,`rgba(${rib.r},${rib.g},${rib.b},${rib.alpha * 0.6})`);
+    g.addColorStop(0.5, `rgba(${Math.min(rib.r+70,255)},${Math.min(rib.g+70,255)},${Math.min(rib.b+70,255)},${rib.alpha})`);
+    g.addColorStop(0.75,`rgba(${rib.r},${rib.g},${rib.b},${rib.alpha * 0.6})`);
+    g.addColorStop(1,   `rgba(${rib.r},${rib.g},${rib.b},0)`);
+    ctx.fillStyle = g;
+    ctx.fill();
+  }
+
+  function frame() {
+    requestAnimationFrame(frame);
+    ctx.clearRect(0, 0, S, S);
+    if (orbState === "idle") return;
+
+    const t = performance.now() / 1000;
+
+    let energy = 0, bass = 0;
+    if (typeof getUserAudioEnergy === "function") {
+      const e = getUserAudioEnergy();
+      energy = e.energy || 0;
+      bass   = e.bass   || 0;
+    }
+
+    const amp = orbState === "listening"
+      ? Math.max(energy * 2.8, 0.18)
+      : Math.max(bass   * 2.2, 0.14);
+
+    // Clip everything to sphere boundary
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(CX, CY, R, 0, Math.PI * 2);
+    ctx.clip();
+
+    // Draw three Siri-style ribbons
+    for (const rib of ribbons) drawRibbon(t, rib, amp);
+
+    // Bright white core glow — the Siri centre star
+    const cg = ctx.createRadialGradient(CX, CY - 3, 0, CX, CY, 16);
+    cg.addColorStop(0,   `rgba(255,255,255,${0.65 + amp * 0.25})`);
+    cg.addColorStop(0.3, `rgba(210,180,255,${0.3  + amp * 0.2})`);
+    cg.addColorStop(0.7, `rgba(155,77,255, ${0.1  + amp * 0.1})`);
+    cg.addColorStop(1,   "rgba(0,0,0,0)");
+    ctx.fillStyle = cg;
+    ctx.fillRect(0, 0, S, S);
+
+    ctx.restore();
+  }
+
+  frame();
+})();
 
 
 /* ================= USER PANEL LOGIC (FIXED) ================= */
@@ -4672,6 +5382,12 @@ userEditToggle.addEventListener("click", () => {
   }
 
   updateUserPanel();
+});
+
+document.getElementById("musicModeBtn").addEventListener("click", () => {
+  if (window.musicMode) window.musicMode.toggle();
+  const btn = document.getElementById("musicModeBtn");
+  btn.textContent = window.musicMode.isActive() ? "♫ Exit Music" : "♫ Music Mode";
 });
 
 userGenerateBtn.addEventListener("click", () => {
@@ -4716,14 +5432,50 @@ if (!token) {
   return;
 }
 
-  const res = await fetch(`${window.BACKEND_URL}/api/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`
+
+let res;
+  try {
+    res = await fetch(`${window.BACKEND_URL}/api/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+} catch (networkErr) {
+    const retries = (window._sessionNetRetries || 0) + 1;
+    window._sessionNetRetries = retries;
+    if (retries <= 5) {
+      const delay = Math.min(1000 * retries, 5000);
+      setTimeout(async () => {
+        const t2 = localStorage.getItem("token");
+        if (!t2) { document.getElementById("createProfileModal").classList.remove("hidden"); return; }
+        try {
+          const r2 = await fetch(`${window.BACKEND_URL}/api/me`, { headers: { Authorization: `Bearer ${t2}` } });
+          if (r2.ok) {
+            window.CURRENT_USER = await r2.json();
+            window._sessionNetRetries = 0;
+            document.getElementById("createProfileModal").classList.add("hidden");
+          }
+        } catch {}
+      }, delay);
+    } else {
+      window._sessionNetRetries = 0;
+      document.getElementById("createProfileModal").classList.remove("hidden");
     }
-  });
+    return;
+  }
+
+  if (res.status === 401 || res.status === 403) {
+    // Only wipe token when server explicitly rejects it
+    localStorage.removeItem("token");
+    document.getElementById("createProfileModal").classList.remove("hidden");
+    return;
+  }
 
   if (!res.ok) {
-    localStorage.removeItem("token");
+    if (window._sessionRestoreRetries == null) window._sessionRestoreRetries = 0;
+    window._sessionRestoreRetries++;
+    if (window._sessionRestoreRetries < 4) {
+      setTimeout(() => { window._sessionRestoreRetries = 0; }, 8000);
+      return;
+    }
     document.getElementById("createProfileModal").classList.remove("hidden");
     return;
   }
@@ -4746,6 +5498,61 @@ handStatusEl.textContent = 'Tap here to enter fullscreen';
 
 document.querySelector(".profile-modal-card")
   .addEventListener("submit", e => e.preventDefault());
+
+// ── CHAT PERSISTENCE + CONTEXT ──
+// sessionStorage keeps messages alive across soft reloads (same tab)
+// window.getChatContext() is called by orbitalVoice.js to give AI memory of recent chat
+const CHAT_KEY = "orbital_chat_history";
+
+function _appendBubble(container, sender, text) {
+  const bubble = document.createElement("div");
+  bubble.classList.add("chat-bubble");
+  bubble.classList.add(sender === "user" ? "chat-user" : "chat-orbital");
+  bubble.textContent = text;
+  container.appendChild(bubble);
+  container.scrollTop = container.scrollHeight;
+}
+
+// Restore saved conversation when page loads
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    const container = document.getElementById("dev-chat-messages");
+    if (!container) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(CHAT_KEY) || "[]");
+      saved.forEach(({ sender, text }) => _appendBubble(container, sender, text));
+    } catch {}
+  }, 600);
+});
+
+// Called by orbitalVoice.js — returns last N exchanges as context string for the AI
+window.getChatContext = function (maxMessages = 10) {
+  try {
+    const history = JSON.parse(sessionStorage.getItem(CHAT_KEY) || "[]");
+    const recent = history.slice(-maxMessages);
+    if (recent.length === 0) return null;
+    return recent
+      .map(({ sender, text }) => `${sender === "user" ? "User" : "Orbital"}: ${text}`)
+      .join("\n");
+  } catch {
+    return null;
+  }
+};
+
+window.addChatMessage = function (sender, text) {
+  const container = document.getElementById("dev-chat-messages");
+  if (!container) return;
+  _appendBubble(container, sender, text);
+  // Save to sessionStorage
+  try {
+    const history = JSON.parse(sessionStorage.getItem(CHAT_KEY) || "[]");
+    history.push({ sender, text });
+    if (history.length > 200) history.splice(0, history.length - 200);
+    sessionStorage.setItem(CHAT_KEY, JSON.stringify(history));
+  } catch {}
+};
+
+
 
 </script>
 </body>
